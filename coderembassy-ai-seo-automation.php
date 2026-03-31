@@ -3,7 +3,7 @@
 /**
  * Plugin Name: CoderEmbassy AI SEO Automation
  * Description: AI-powered SEO title, meta description & schema generation for products.
- * Plugin URI:  https://github.com/salehST/CoderEmbassy-AI-SEO-Automation
+ * Plugin URI:  https://github.com/salehST/coderembassy-ai-seo-automation
  * Version:     1.0.0
  * Author:      codersaleh
  * Author URI:  https://coderembassy.com/
@@ -15,7 +15,7 @@
  * Requires PHP:      8.0
  * WC requires at least: 8.0
  * WC Tested up to: 12.0
- * Requires Plugins: WooCommerce
+ * Requires Plugins: woocommerce
  */
 
 defined('ABSPATH') || exit;

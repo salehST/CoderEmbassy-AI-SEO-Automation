@@ -63,6 +63,13 @@ class Plugin {
             }
         } );
 
+        // Declare WooCommerce compatibility (HPOS, etc.)
+        add_action( 'before_woocommerce_init', function () {
+            if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', CE_AI_SEO_PLUGIN_FILE, true );
+            }
+        } );
+
         // REST API controllers
         add_action( 'rest_api_init', function () use ( $tier ) {
             // Free + Pro + Scale
