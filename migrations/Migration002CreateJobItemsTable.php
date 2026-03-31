@@ -31,7 +31,7 @@ class Migration002CreateJobItemsTable {
         ) {$charset};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
+        dbDelta( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dbDelta() executes schema SQL.
     }
 
     public function down(): void {
