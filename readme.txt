@@ -1,5 +1,5 @@
 === CoderEmbassy AI SEO Automation ===
-Contributors: codersaleh
+Contributors: codersaleh,phpcoderhannan
 Tags: woocommerce, seo, ai, openai, automation
 Requires at least: 6.4
 Tested up to: 6.9
