@@ -270,7 +270,7 @@ class Plugin {
     public static function woocommerce_missing_notice(): void {
         ?>
         <div class="notice notice-error">
-            <p><?php esc_html_e( 'AI WooCommerce Product SEO Automation requires WooCommerce to be installed and active.', 'coderembassy-ai-seo-automation' ); ?></p>
+            <p><?php esc_html_e( 'AI WooCommerce Product SEO Automation requires WooCommerce to be installed and active.', 'CoderEmbassy-AI-SEO-Automation' ); ?></p>
         </div>
         <?php
     }

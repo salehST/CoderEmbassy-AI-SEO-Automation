@@ -33,7 +33,7 @@ class MetaBox {
     public function add_meta_box(): void {
         add_meta_box(
             'aiwoo-seo-metabox',
-            __( 'AI SEO', 'coderembassy-ai-seo-automation' ),
+            __( 'AI SEO', 'CoderEmbassy-AI-SEO-Automation' ),
             [ $this, 'render' ],
             'product',
             'side',

@@ -254,6 +254,7 @@ class JobRepository {
         $args  = array_merge( [ $table ], array_values( $statuses ) );
 
         $row = $wpdb->get_row(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is built with placeholders; args are prepared.
             $wpdb->prepare( $sql, $args )
         );
 
@@ -300,6 +301,7 @@ class JobRepository {
         $values[] = $limit;
 
         $query .= ' ORDER BY id DESC LIMIT %d';
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is built from fixed fragments; values are prepared.
         $rows   = $wpdb->get_results( $wpdb->prepare( $query, $values ) );
         return is_array( $rows ) ? $rows : [];
     }
