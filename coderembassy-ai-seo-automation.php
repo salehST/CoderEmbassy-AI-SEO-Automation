@@ -15,6 +15,7 @@
  * Requires PHP:      8.0
  * WC requires at least: 8.0
  * WC Tested up to: 12.0
+ * Requires Plugins: WooCommerce
  */
 
 defined('ABSPATH') || exit;
