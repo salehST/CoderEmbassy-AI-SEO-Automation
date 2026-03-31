@@ -37,10 +37,6 @@ class Migration002CreateJobItemsTable {
     public function down(): void {
         global $wpdb;
         $table = Schema::tableName( Schema::JOB_ITEMS );
-        $sql = $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table );
-        if ( is_string( $sql ) ) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migrations must execute DDL directly.
-            $wpdb->query( $sql );
-        }
+        $wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Schema operation, no user input.
     }
 }

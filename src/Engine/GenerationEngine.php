@@ -90,9 +90,8 @@ class GenerationEngine {
      */
     private function resolveProductLanguage( int $productId ): string {
         if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Third-party WPML hook name.
             $lang = apply_filters(
-                'wpml_element_language_code',
+                'wpml_element_language_code', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This is a WPML-defined filter we consume, not a hook we register
                 null,
                 [ 'element_id' => $productId, 'element_type' => 'post_product' ]
             );
