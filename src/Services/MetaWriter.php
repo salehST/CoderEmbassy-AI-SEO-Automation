@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Services;
+namespace CoderEmbassy\AiSeoAutomation\Services;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -10,8 +10,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class MetaWriter {
 
-    private const OPTION_TARGET = 'aiwoo_seo_target';
-    private const META_LOCKED   = '_aiwoo_field_locked';
+    private const OPTION_TARGET = 'ce_ai_seo_seo_target';
+    private const META_LOCKED   = '_ce_ai_seo_field_locked';
     private const VALID_TARGETS = [ 'yoast', 'rankmath', 'native' ];
 
     /**
@@ -35,8 +35,8 @@ class MetaWriter {
         update_post_meta( $product_id, $keys['meta'], $meta );
 
         // Always write backup to plugin's own keys.
-        update_post_meta( $product_id, '_aiwoo_seo_title', $title );
-        update_post_meta( $product_id, '_aiwoo_seo_meta', $meta );
+        update_post_meta( $product_id, '_ce_ai_seo_seo_title', $title );
+        update_post_meta( $product_id, '_ce_ai_seo_seo_meta', $meta );
 
         return [
             'written' => true,
@@ -85,7 +85,7 @@ class MetaWriter {
             case 'rankmath':
                 return [ 'title' => 'rank_math_title', 'meta' => 'rank_math_description' ];
             case 'native':
-                return [ 'title' => '_aiwoo_seo_title', 'meta' => '_aiwoo_seo_meta' ];
+                return [ 'title' => '_ce_ai_seo_seo_title', 'meta' => '_ce_ai_seo_seo_meta' ];
             case 'yoast':
             default:
                 return [ 'title' => '_yoast_wpseo_title', 'meta' => '_yoast_wpseo_metadesc' ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Jobs;
+namespace CoderEmbassy\AiSeoAutomation\Jobs;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,7 +15,7 @@ class RateLimiter {
 
     public function __construct( string $provider = 'openai', int $maxPerMinute = 60 ) {
         $this->maxPerMinute = $maxPerMinute;
-        $this->transientKey = "aiwoo_rate_{$provider}";
+        $this->transientKey = "ce_ai_seo_rate_{$provider}";
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Services;
+namespace CoderEmbassy\AiSeoAutomation\Services;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,7 +43,7 @@ class SchemaGenerator {
         // Brand — prefer AI hint, then plugin setting
         $brand_name = ! empty( $aiSchema['brand'] )
             ? (string) $aiSchema['brand']
-            : (string) get_option( 'aiwoo_brand', '' );
+            : (string) get_option( 'ce_ai_seo_brand', '' );
         if ( $brand_name ) {
             $schema['brand'] = [ '@type' => 'Brand', 'name' => $brand_name ];
         }
@@ -115,7 +115,7 @@ class SchemaGenerator {
             return;
         }
 
-        $stored = (string) get_post_meta( $productId, '_aiwoo_seo_schema', true );
+        $stored = (string) get_post_meta( $productId, '_ce_ai_seo_seo_schema', true );
         if ( empty( $stored ) ) {
             return;
         }

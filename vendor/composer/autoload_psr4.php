@@ -6,6 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'AiWooSeo\\Database\\Migrations\\' => array($baseDir . '/migrations'),
-    'AiWooSeo\\' => array($baseDir . '/src'),
+    'CoderEmbassy\\AiSeoAutomation\\Database\\Migrations\\' => array($baseDir . '/migrations'),
+    'CoderEmbassy\\AiSeoAutomation\\' => array($baseDir . '/src'),
 );

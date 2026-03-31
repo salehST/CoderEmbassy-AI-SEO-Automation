@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Api;
+namespace CoderEmbassy\AiSeoAutomation\Api;
 
 defined( 'ABSPATH' ) || exit;
 

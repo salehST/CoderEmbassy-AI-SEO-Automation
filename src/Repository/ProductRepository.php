@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Repository;
+namespace CoderEmbassy\AiSeoAutomation\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,7 +63,7 @@ class ProductRepository {
             'categories'        => $categories,
             'attributes'        => $attributes,
             'brand'             => $brand,
-            'focus_keyphrase'   => (string) get_post_meta( $productId, '_aiwoo_focus_keyphrase', true ),
+            'focus_keyphrase'   => (string) get_post_meta( $productId, '_ce_ai_seo_focus_keyphrase', true ),
         ];
     }
 
@@ -78,10 +78,10 @@ class ProductRepository {
      */
     public function updateSeoFields( int $productId, array $seoData, int $userId = 0, ?int $jobId = null ): void {
         $meta_keys = [
-            'title'  => '_aiwoo_seo_title',
-            'meta'   => '_aiwoo_seo_meta',
-            'alt'    => '_aiwoo_seo_alt',
-            'schema' => '_aiwoo_seo_schema',
+            'title'  => '_ce_ai_seo_seo_title',
+            'meta'   => '_ce_ai_seo_seo_meta',
+            'alt'    => '_ce_ai_seo_seo_alt',
+            'schema' => '_ce_ai_seo_seo_schema',
         ];
 
         foreach ( $meta_keys as $key => $meta_key ) {
@@ -95,7 +95,7 @@ class ProductRepository {
 
             update_post_meta( $productId, $meta_key, $new_value );
 
-            do_action( 'aiwoo_seo_field_updated', $productId, $meta_key, $old_value, $new_value, $userId, $jobId );
+            do_action( 'ce_ai_seo_seo_field_updated', $productId, $meta_key, $old_value, $new_value, $userId, $jobId );
         }
 
         // ── Write-through to third-party SEO plugins (unconditional) ─────────

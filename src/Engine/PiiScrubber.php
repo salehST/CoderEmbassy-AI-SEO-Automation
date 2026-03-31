@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Engine;
+namespace CoderEmbassy\AiSeoAutomation\Engine;
 
 defined( 'ABSPATH' ) || exit;
 

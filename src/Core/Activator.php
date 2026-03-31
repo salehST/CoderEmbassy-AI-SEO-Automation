@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Core;
+namespace CoderEmbassy\AiSeoAutomation\Core;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -13,8 +13,8 @@ class Activator {
      * Register activation and deactivation hooks.
      */
     public function register_hooks(): void {
-        register_activation_hook( AIWOO_PLUGIN_FILE, [ $this, 'activate' ] );
-        register_deactivation_hook( AIWOO_PLUGIN_FILE, [ $this, 'deactivate' ] );
+        register_activation_hook( CE_AI_SEO_PLUGIN_FILE, [ $this, 'activate' ] );
+        register_deactivation_hook( CE_AI_SEO_PLUGIN_FILE, [ $this, 'deactivate' ] );
     }
 
     /**
@@ -28,13 +28,13 @@ class Activator {
             foreach ( get_sites( [ 'fields' => 'ids' ] ) as $blogId ) {
                 switch_to_blog( (int) $blogId );
                 try {
-                    ( new \AiWooSeo\Database\MigrationManager() )->run_pending();
+                    ( new \CoderEmbassy\AiSeoAutomation\Database\MigrationManager() )->run_pending();
                 } finally {
                     restore_current_blog();
                 }
             }
         } else {
-            ( new \AiWooSeo\Database\MigrationManager() )->run_pending();
+            ( new \CoderEmbassy\AiSeoAutomation\Database\MigrationManager() )->run_pending();
         }
     }
 
@@ -50,6 +50,6 @@ class Activator {
      * Clear all plugin cron hooks.
      */
     private function clear_cron_hooks(): void {
-        wp_clear_scheduled_hook( 'aiwoo_queue_runner' );
+        wp_clear_scheduled_hook( 'ce_ai_seo_queue_runner' );
     }
 }

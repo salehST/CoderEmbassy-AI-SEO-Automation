@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Services\RollbackManager;
+use CoderEmbassy\AiSeoAutomation\Services\RollbackManager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class RollbackController {
     }
 
     /**
-     * POST /aiwoo/v1/rollback/{job_id} — Roll back all changes from a job.
+     * POST /coderembassy-ai-seo/v1/rollback/{job_id} — Roll back all changes from a job.
      */
     public function rollback_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id = absint( $request->get_param( 'job_id' ) );
@@ -54,7 +54,7 @@ class RollbackController {
     }
 
     /**
-     * POST /aiwoo/v1/rollback/{job_id}/{product_id} — Roll back a single product.
+     * POST /coderembassy-ai-seo/v1/rollback/{job_id}/{product_id} — Roll back a single product.
      */
     public function rollback_single( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id     = absint( $request->get_param( 'job_id' ) );

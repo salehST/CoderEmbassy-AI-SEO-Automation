@@ -1,11 +1,11 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Database\Schema;
-use AiWooSeo\Repository\AuditRepository;
-use AiWooSeo\Repository\JobRepository;
-use AiWooSeo\Repository\ProductRepository;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Repository\AuditRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\ProductRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -57,7 +57,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply/{job_id} — Apply all completed previews in a job.
+     * POST /coderembassy-ai-seo/v1/apply/{job_id} — Apply all completed previews in a job.
      */
     public function apply_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id  = absint( $request->get_param( 'job_id' ) );
@@ -94,7 +94,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply/{job_id}/{product_id} — Apply preview for a single product.
+     * POST /coderembassy-ai-seo/v1/apply/{job_id}/{product_id} — Apply preview for a single product.
      */
     public function apply_single( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id     = absint( $request->get_param( 'job_id' ) );
@@ -122,7 +122,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply-preview/{product_id}
+     * POST /coderembassy-ai-seo/v1/apply-preview/{product_id}
      *
      * Directly applies a preview object from the metabox to a product's SEO
      * fields without requiring an existing bulk job.
@@ -163,10 +163,10 @@ class ApplyController {
      */
     private function applyPreviewToProduct( int $product_id, array $preview, int $user_id, int $job_id ): void {
         $meta_map = [
-            'title'  => '_aiwoo_seo_title',
-            'meta'   => '_aiwoo_seo_meta',
-            'alt'    => '_aiwoo_seo_alt',
-            'schema' => '_aiwoo_seo_schema',
+            'title'  => '_ce_ai_seo_seo_title',
+            'meta'   => '_ce_ai_seo_seo_meta',
+            'alt'    => '_ce_ai_seo_seo_alt',
+            'schema' => '_ce_ai_seo_seo_schema',
         ];
 
         foreach ( $meta_map as $key => $meta_key ) {

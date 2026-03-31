@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Repository;
+namespace CoderEmbassy\AiSeoAutomation\Repository;
 
-use AiWooSeo\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -45,8 +45,8 @@ class RulesRepository {
         );
 
         if ( ! $wpdb->insert_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( '[ai-woo-seo] createRule failed. DB error: ' . $wpdb->last_error );
-            error_log( '[ai-woo-seo] Last query: ' . $wpdb->last_query );
+            error_log( '[coderembassy-ai-seo-automation] createRule failed. DB error: ' . $wpdb->last_error );
+            error_log( '[coderembassy-ai-seo-automation] Last query: ' . $wpdb->last_query );
         }
 
         return (int) $wpdb->insert_id;

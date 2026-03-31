@@ -7,7 +7,7 @@
  * Author:      codersaleh
  * Author URI:  https://coderembassy.com/
  * License:     GPL-3.0-or-later
- * Text Domain: ai-woo-seo
+ * Text Domain: coderembassy-ai-seo-automation
  * Requires at least: 6.4
  * Requires PHP:      8.0
  * WC requires at least: 8.0
@@ -15,24 +15,24 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIWOO_TIER',        'free' );
-define( 'AIWOO_PLUGIN_FILE', __FILE__ );
-define( 'AIWOO_VERSION',     '1.0.0' );
-define( 'AIWOO_STORE_URL',   'https://plugin.coderembassy.com' );
+define( 'CE_AI_SEO_TIER',        'free' );
+define( 'CE_AI_SEO_PLUGIN_FILE', __FILE__ );
+define( 'CE_AI_SEO_VERSION',     '1.0.0' );
+define( 'CE_AI_SEO_STORE_URL',   'https://plugin.coderembassy.com' );
 
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
-register_activation_hook( __FILE__, [ new \AiWooSeo\Core\Activator(), 'activate' ] );
-register_deactivation_hook( __FILE__, [ new \AiWooSeo\Core\Activator(), 'deactivate' ] );
+register_activation_hook( __FILE__, [ new \CoderEmbassy\AiSeoAutomation\Core\Activator(), 'activate' ] );
+register_deactivation_hook( __FILE__, [ new \CoderEmbassy\AiSeoAutomation\Core\Activator(), 'deactivate' ] );
 
-add_action( 'plugins_loaded', [ \AiWooSeo\Core\Plugin::class, 'boot' ] );
+add_action( 'plugins_loaded', [ \CoderEmbassy\AiSeoAutomation\Core\Plugin::class, 'boot' ] );
 
 // Protect AI-written Yoast meta from being deleted by Yoast's default-value cleanup
 add_filter( 'delete_post_metadata', function( $check, $object_id, $meta_key ) {
     if ( ! in_array( $meta_key, [ '_yoast_wpseo_title', '_yoast_wpseo_metadesc' ], true ) ) {
         return $check;
     }
-    $ai_key = ( $meta_key === '_yoast_wpseo_title' ) ? '_aiwoo_seo_title' : '_aiwoo_seo_meta';
+    $ai_key = ( $meta_key === '_yoast_wpseo_title' ) ? '_ce_ai_seo_seo_title' : '_ce_ai_seo_seo_meta';
     return get_post_meta( $object_id, $ai_key, true ) ? false : $check;
 }, 1, 3 );
 

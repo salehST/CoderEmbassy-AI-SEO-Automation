@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Core;
+namespace CoderEmbassy\AiSeoAutomation\Core;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,8 +38,8 @@ class Assets {
             return;
         }
 
-        $dist_dir = plugin_dir_path( AIWOO_PLUGIN_FILE ) . 'dist/';
-        $dist_url = plugin_dir_url( AIWOO_PLUGIN_FILE ) . 'dist/';
+        $dist_dir = plugin_dir_path( CE_AI_SEO_PLUGIN_FILE ) . 'dist/';
+        $dist_url = plugin_dir_url( CE_AI_SEO_PLUGIN_FILE ) . 'dist/';
 
         // Only enqueue if the built files exist
         if ( ! file_exists( $dist_dir . 'main.js' ) ) {
@@ -51,7 +51,7 @@ class Assets {
                 'aiwoo-admin',
                 $dist_url . 'main.css',
                 [],
-                AIWOO_VERSION
+                CE_AI_SEO_VERSION
             );
         }
 
@@ -59,7 +59,7 @@ class Assets {
             'aiwoo-admin',
             $dist_url . 'main.js',
             [],
-            AIWOO_VERSION,
+            CE_AI_SEO_VERSION,
             true
         );
 
@@ -67,7 +67,7 @@ class Assets {
         $display_name = $current_user->display_name ?: $current_user->user_login ?: 'User';
         $initial      = strtoupper( mb_substr( $display_name, 0, 1 ) );
 
-        $tier           = defined( 'AIWOO_TIER' ) ? AIWOO_TIER : 'free';
+        $tier           = defined( 'CE_AI_SEO_TIER' ) ? CE_AI_SEO_TIER : 'free';
         $licenseEnabled = in_array( $tier, [ 'pro', 'scale' ], true );
 
         // Pass WordPress REST API data to the SPA via window.AiWoo
@@ -75,10 +75,10 @@ class Assets {
             'root'        => esc_url_raw( rest_url() ),
             'wcRoot'      => esc_url_raw( rest_url( 'wc/v3/' ) ),
             'nonce'       => wp_create_nonce( 'wp_rest' ),
-            'version'     => AIWOO_VERSION,
+            'version'     => CE_AI_SEO_VERSION,
             'tier'           => $tier,
             'licenseEnabled' => $licenseEnabled,
-            'pricingUrl'     => defined( 'AIWOO_STORE_URL' ) ? AIWOO_STORE_URL . '/pricing' : '',
+            'pricingUrl'     => defined( 'CE_AI_SEO_STORE_URL' ) ? CE_AI_SEO_STORE_URL . '/pricing' : '',
             'logoDark'    => esc_url( $dist_url . 'logo-dark.png' ),
             'logoLight'   => esc_url( $dist_url . 'logo-light.png' ),
             'userName'    => esc_html( $display_name ),

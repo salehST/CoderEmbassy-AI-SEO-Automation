@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Admin;
+namespace CoderEmbassy\AiSeoAutomation\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,8 +15,8 @@ class AdminMenu {
 
     public function add_menu_page(): void {
         add_menu_page(
-            __( 'CoderEmbassy AI SEO Automation', 'ai-woo-seo' ),
-            __( 'AI SEO', 'ai-woo-seo' ),
+            __( 'CoderEmbassy AI SEO Automation', 'coderembassy-ai-seo-automation' ),
+            __( 'AI SEO', 'coderembassy-ai-seo-automation' ),
             'manage_woocommerce',
             'aiwoo-seo',
             [ $this, 'render_page' ],
@@ -35,7 +35,7 @@ class AdminMenu {
     public function render_page(): void {
         ?>
         <div class="wrap">
-            <h1 class="screen-reader-text"><?php esc_html_e( 'CoderEmbassy AI SEO Automation', 'ai-woo-seo' ); ?></h1>
+            <h1 class="screen-reader-text"><?php esc_html_e( 'CoderEmbassy AI SEO Automation', 'coderembassy-ai-seo-automation' ); ?></h1>
         </div>
         <div id="aiwoo-admin-root"></div>
         <?php

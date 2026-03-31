@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Services;
+namespace CoderEmbassy\AiSeoAutomation\Services;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -34,7 +34,7 @@ class UsageMeter {
      * @return string
      */
     public function getTier(): string {
-        return (string) get_option( 'aiwoo_tier', 'free' );
+        return (string) get_option( 'ce_ai_seo_tier', 'free' );
     }
 
     /**
@@ -61,6 +61,6 @@ class UsageMeter {
     }
 
     private function getMonthlyKey(): string {
-        return 'aiwoo_usage_' . gmdate( 'Y_m' );
+        return 'ce_ai_seo_usage_' . gmdate( 'Y_m' );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Database;
+namespace CoderEmbassy\AiSeoAutomation\Database;
 
 defined( 'ABSPATH' ) || exit;
 

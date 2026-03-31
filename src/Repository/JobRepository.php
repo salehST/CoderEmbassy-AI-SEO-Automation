@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Repository;
+namespace CoderEmbassy\AiSeoAutomation\Repository;
 
-use AiWooSeo\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 

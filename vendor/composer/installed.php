@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'aiwoo/ai-woo-seo',
+        'name' => 'aiwoo/coderembassy-ai-seo-automation',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
         'reference' => null,
@@ -10,7 +10,7 @@
         'dev' => false,
     ),
     'versions' => array(
-        'aiwoo/ai-woo-seo' => array(
+        'aiwoo/coderembassy-ai-seo-automation' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
             'reference' => null,

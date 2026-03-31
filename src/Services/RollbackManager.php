@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Services;
+namespace CoderEmbassy\AiSeoAutomation\Services;
 
-use AiWooSeo\Repository\AuditRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\AuditRepository;
 
 defined( 'ABSPATH' ) || exit;
 

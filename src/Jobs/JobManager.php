@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Jobs;
+namespace CoderEmbassy\AiSeoAutomation\Jobs;
 
-use AiWooSeo\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ class JobManager {
 
         // Schedule a one-off cron in 5 seconds to kick off the worker.
         // Never schedule one event per item — only per job.
-        wp_schedule_single_event( time() + 5, 'aiwoo_queue_runner' );
+        wp_schedule_single_event( time() + 5, 'ce_ai_seo_queue_runner' );
 
         return $jobId;
     }

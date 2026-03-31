@@ -1,11 +1,11 @@
 <?php
 
-namespace AiWooSeo\Engine;
+namespace CoderEmbassy\AiSeoAutomation\Engine;
 
-use AiWooSeo\Api\ApiClientInterface;
-use AiWooSeo\Repository\ProductRepository;
-use AiWooSeo\Repository\RulesRepository;
-use AiWooSeo\Services\UsageMeter;
+use CoderEmbassy\AiSeoAutomation\Api\ApiClientInterface;
+use CoderEmbassy\AiSeoAutomation\Repository\ProductRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\RulesRepository;
+use CoderEmbassy\AiSeoAutomation\Services\UsageMeter;
 
 defined( 'ABSPATH' ) || exit;
 

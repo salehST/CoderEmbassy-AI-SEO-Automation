@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Admin;
+namespace CoderEmbassy\AiSeoAutomation\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,7 +33,7 @@ class MetaBox {
     public function add_meta_box(): void {
         add_meta_box(
             'aiwoo-seo-metabox',
-            __( 'AI SEO', 'ai-woo-seo' ),
+            __( 'AI SEO', 'coderembassy-ai-seo-automation' ),
             [ $this, 'render' ],
             'product',
             'side',
@@ -52,11 +52,11 @@ class MetaBox {
 
         if ( $product ) {
             $current = [
-                'title'          => get_post_meta( $post->ID, '_aiwoo_seo_title', true ) ?: '',
-                'meta'           => get_post_meta( $post->ID, '_aiwoo_seo_meta', true ) ?: '',
-                'alt'            => json_decode( (string) get_post_meta( $post->ID, '_aiwoo_seo_alt', true ), true ) ?: [],
-                'schema'         => json_decode( (string) get_post_meta( $post->ID, '_aiwoo_seo_schema', true ), true ) ?: [],
-                'focus_keyphrase'=> (string) get_post_meta( $post->ID, '_aiwoo_focus_keyphrase', true ),
+                'title'          => get_post_meta( $post->ID, '_ce_ai_seo_seo_title', true ) ?: '',
+                'meta'           => get_post_meta( $post->ID, '_ce_ai_seo_seo_meta', true ) ?: '',
+                'alt'            => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_alt', true ), true ) ?: [],
+                'schema'         => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_schema', true ), true ) ?: [],
+                'focus_keyphrase'=> (string) get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ),
             ];
         }
         ?>
@@ -66,10 +66,10 @@ class MetaBox {
         <script>
             window.AiWooProduct = {
                 productId: <?php echo (int) $post->ID; ?>,
-                lastJobId: <?php echo (int) get_post_meta( $post->ID, '_aiwoo_last_job_id', true ); ?>,
+                lastJobId: <?php echo (int) get_post_meta( $post->ID, '_ce_ai_seo_last_job_id', true ); ?>,
                 current: <?php echo wp_json_encode( $current ); ?>,
                 nonce: <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>,
-                focusKeyphrase: <?php echo wp_json_encode( get_post_meta( $post->ID, '_aiwoo_focus_keyphrase', true ) ?: '' ); ?>,
+                focusKeyphrase: <?php echo wp_json_encode( get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ) ?: '' ); ?>,
             };
         </script>
         <?php
@@ -90,8 +90,8 @@ class MetaBox {
             return;
         }
 
-        $dist_dir = plugin_dir_path( AIWOO_PLUGIN_FILE ) . 'dist/';
-        $dist_url = plugin_dir_url( AIWOO_PLUGIN_FILE ) . 'dist/';
+        $dist_dir = plugin_dir_path( CE_AI_SEO_PLUGIN_FILE ) . 'dist/';
+        $dist_url = plugin_dir_url( CE_AI_SEO_PLUGIN_FILE ) . 'dist/';
 
         if ( ! file_exists( $dist_dir . 'metabox.js' ) ) {
             return;
@@ -102,7 +102,7 @@ class MetaBox {
                 'aiwoo-metabox',
                 $dist_url . 'main.css',
                 [],
-                AIWOO_VERSION
+                CE_AI_SEO_VERSION
             );
         }
 
@@ -110,7 +110,7 @@ class MetaBox {
             'aiwoo-metabox',
             $dist_url . 'metabox.js',
             [],
-            AIWOO_VERSION,
+            CE_AI_SEO_VERSION,
             true
         );
 

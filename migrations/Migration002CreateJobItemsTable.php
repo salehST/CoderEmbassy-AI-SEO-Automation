@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Database\Migrations;
+namespace CoderEmbassy\AiSeoAutomation\Database\Migrations;
 
-use AiWooSeo\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 
