@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Audit rows are NEVER deleted — rollbacks create new 'rollback' rows.
  */
 class AuditRepository {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     /**
      * Insert a single audit row.
@@ -49,8 +50,8 @@ class AuditRepository {
         $table = Schema::tableName( Schema::AUDIT );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
-                "SELECT * FROM {$table} WHERE job_id = %d AND event_type = 'apply' ORDER BY id ASC",
+                'SELECT * FROM %i WHERE job_id = %d AND event_type = \'apply\' ORDER BY id ASC',
+                $table,
                 $jobId
             )
         );
@@ -71,8 +72,8 @@ class AuditRepository {
         $table = Schema::tableName( Schema::AUDIT );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
-                "SELECT * FROM {$table} WHERE job_id = %d AND product_id = %d AND event_type = 'apply' ORDER BY id ASC",
+                'SELECT * FROM %i WHERE job_id = %d AND product_id = %d AND event_type = \'apply\' ORDER BY id ASC',
+                $table,
                 $jobId,
                 $productId
             )
@@ -93,44 +94,44 @@ class AuditRepository {
         global $wpdb;
 
         $table  = Schema::tableName( Schema::AUDIT );
-        $where  = [];
-        $values = [];
+        $query  = 'SELECT * FROM %i WHERE 1=1';
+        $values = [ $table ];
 
         if ( ! empty( $filters['job_id'] ) ) {
-            $where[]  = 'job_id = %d';
+            $query   .= ' AND job_id = %d';
             $values[] = (int) $filters['job_id'];
         }
 
         if ( ! empty( $filters['product_id'] ) ) {
-            $where[]  = 'product_id = %d';
+            $query   .= ' AND product_id = %d';
             $values[] = (int) $filters['product_id'];
         }
 
         if ( ! empty( $filters['event_type'] ) ) {
-            $where[]  = 'event_type = %s';
+            $query   .= ' AND event_type = %s';
             $values[] = sanitize_key( $filters['event_type'] );
         }
 
         if ( ! empty( $filters['date_from'] ) ) {
-            $where[]  = 'created_at >= %s';
+            $query   .= ' AND created_at >= %s';
             $values[] = sanitize_text_field( $filters['date_from'] ) . ' 00:00:00';
         }
 
         if ( ! empty( $filters['date_to'] ) ) {
-            $where[]  = 'created_at <= %s';
+            $query   .= ' AND created_at <= %s';
             $values[] = sanitize_text_field( $filters['date_to'] ) . ' 23:59:59';
         }
 
-        $where_sql = $where ? ( 'WHERE ' . implode( ' AND ', $where ) ) : '';
         $limit     = min( (int) ( $filters['limit'] ?? 50 ), 5000 );
         $offset    = (int) ( $filters['offset'] ?? 0 );
 
         $values[] = $limit;
         $values[] = $offset;
 
-        $sql = "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d OFFSET %d";
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table/WHERE are safely constructed; values are prepared.
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $values ) );
+        $query .= ' ORDER BY id DESC LIMIT %d OFFSET %d';
+        $rows   = $wpdb->get_results( $wpdb->prepare( $query, $values ) );
         return is_array( $rows ) ? $rows : [];
     }
+
+    // phpcs:enable
 }

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * All queries use $wpdb->prepare() — no raw dynamic SQL.
  */
 class RulesRepository {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
@@ -125,8 +126,7 @@ class RulesRepository {
         global $wpdb;
         $table = Schema::tableName( Schema::RULES );
         $row   = $wpdb->get_row(
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
-            $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d LIMIT 1", $id )
+            $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d LIMIT 1', $table, $id )
         );
         return $row ? $this->decodeRow( $row ) : null;
     }
@@ -145,8 +145,8 @@ class RulesRepository {
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
-                "SELECT * FROM {$table} ORDER BY is_default DESC, id ASC LIMIT %d OFFSET %d",
+                'SELECT * FROM %i ORDER BY is_default DESC, id ASC LIMIT %d OFFSET %d',
+                $table,
                 $limit,
                 $offset
             )
@@ -165,8 +165,8 @@ class RulesRepository {
         $table = Schema::tableName( Schema::RULES );
         $row   = $wpdb->get_row(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
-                "SELECT * FROM {$table} WHERE is_default = %d ORDER BY id ASC LIMIT 1",
+                'SELECT * FROM %i WHERE is_default = %d ORDER BY id ASC LIMIT 1',
+                $table,
                 1
             )
         );
@@ -192,8 +192,10 @@ class RulesRepository {
 
         $table = Schema::tableName( Schema::RULES );
         $rows  = $wpdb->get_results(
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name is internal/known; no user input.
-            "SELECT * FROM {$table} WHERE category_ids IS NOT NULL AND category_ids != '' ORDER BY id ASC"
+            $wpdb->prepare(
+                "SELECT * FROM %i WHERE category_ids IS NOT NULL AND category_ids != '' ORDER BY id ASC",
+                $table
+            )
         );
 
         if ( is_array( $rows ) ) {
@@ -223,4 +225,6 @@ class RulesRepository {
         $row->is_default = (bool) $row->is_default;
         return $row;
     }
+
+    // phpcs:enable
 }

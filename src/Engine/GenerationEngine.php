@@ -90,6 +90,7 @@ class GenerationEngine {
      */
     private function resolveProductLanguage( int $productId ): string {
         if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Third-party WPML hook name.
             $lang = apply_filters(
                 'wpml_element_language_code',
                 null,

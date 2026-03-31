@@ -8,6 +8,7 @@ defined( 'ABSPATH' ) || exit;
  * Fetches and updates WooCommerce product data for SEO.
  */
 class ProductRepository {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     /**
      * Get product data for AI generation.
@@ -108,11 +109,15 @@ class ProductRepository {
         // $wpdb->replace() always INSERTs instead of updating. Use DELETE + INSERT.
         global $wpdb;
         if ( isset( $seoData['title'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_title' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_title',    'meta_value' => $seoData['title'] ] );
         }
         if ( isset( $seoData['meta'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_metadesc' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_metadesc', 'meta_value' => $seoData['meta'] ] );
         }
         wp_cache_delete( $productId, 'post_meta' );
@@ -135,4 +140,5 @@ class ProductRepository {
         }
     }
 
+    // phpcs:enable
 }

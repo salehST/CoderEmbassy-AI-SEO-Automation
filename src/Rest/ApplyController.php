@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * REST controller for applying previews to products.
  */
 class ApplyController {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     public function __construct(
         private JobRepository $jobRepo,
@@ -207,11 +208,15 @@ class ApplyController {
         // We must DELETE the old row first, then INSERT fresh, then clear
         // WordPress's internal object cache for this post.
         if ( isset( $preview['title'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_title' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_title', 'meta_value' => $preview['title'] ] );
         }
         if ( isset( $preview['meta'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_metadesc' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_metadesc', 'meta_value' => $preview['meta'] ] );
         }
         // Flush WP's postmeta object cache so subsequent get_post_meta() calls
@@ -248,8 +253,8 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
-                "SELECT * FROM {$table} WHERE job_id = %d AND status = 'complete' ORDER BY id ASC",
+                'SELECT * FROM %i WHERE job_id = %d AND status = \'complete\' ORDER BY id ASC',
+                $table,
                 $job_id
             )
         );
@@ -268,12 +273,14 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $row   = $wpdb->get_row(
             $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
-                "SELECT * FROM {$table} WHERE job_id = %d AND product_id = %d AND status = 'complete' LIMIT 1",
+                'SELECT * FROM %i WHERE job_id = %d AND product_id = %d AND status = \'complete\' LIMIT 1',
+                $table,
                 $job_id,
                 $product_id
             )
         );
         return $row ?: null;
     }
+
+    // phpcs:enable
 }
