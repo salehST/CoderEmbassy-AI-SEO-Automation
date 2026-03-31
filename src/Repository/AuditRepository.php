@@ -49,6 +49,7 @@ class AuditRepository {
         $table = Schema::tableName( Schema::AUDIT );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
                 "SELECT * FROM {$table} WHERE job_id = %d AND event_type = 'apply' ORDER BY id ASC",
                 $jobId
             )
@@ -70,6 +71,7 @@ class AuditRepository {
         $table = Schema::tableName( Schema::AUDIT );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
                 "SELECT * FROM {$table} WHERE job_id = %d AND product_id = %d AND event_type = 'apply' ORDER BY id ASC",
                 $jobId,
                 $productId
@@ -126,13 +128,9 @@ class AuditRepository {
         $values[] = $limit;
         $values[] = $offset;
 
+        $sql = "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d OFFSET %d";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table/WHERE are safely constructed; values are prepared.
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d OFFSET %d",
-                ...$values
-            )
-        );
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $values ) );
         return is_array( $rows ) ? $rows : [];
     }
 }

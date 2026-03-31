@@ -248,6 +248,7 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
                 "SELECT * FROM {$table} WHERE job_id = %d AND status = 'complete' ORDER BY id ASC",
                 $job_id
             )
@@ -267,6 +268,7 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $row   = $wpdb->get_row(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
                 "SELECT * FROM {$table} WHERE job_id = %d AND product_id = %d AND status = 'complete' LIMIT 1",
                 $job_id,
                 $product_id

@@ -86,10 +86,8 @@ class Worker {
                             $preview['meta']  ?? ''
                         );
                     } catch ( \Throwable $writeEx ) {
-                        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                            error_log( '[coderembassy-ai-seo-automation] Autopilot MetaWriter failed for product '
-                                . $item->product_id . ': ' . $writeEx->getMessage() );
-                        }
+                        // Swallow write errors: the item is complete (preview generated),
+                        // but autopilot write-through failed; operator can retry apply.
                     }
                 }
             } catch ( \Throwable $e ) {

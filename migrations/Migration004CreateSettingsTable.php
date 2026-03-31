@@ -33,6 +33,7 @@ class Migration004CreateSettingsTable {
     public function down(): void {
         global $wpdb;
         $table = $wpdb->prefix . self::TABLE;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table name is internal/known; schema changes are expected in migrations.
         $wpdb->query( "DROP TABLE IF EXISTS {$table}" );
     }
 }

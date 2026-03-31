@@ -106,6 +106,7 @@ class JobRepository {
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
                 "SELECT * FROM {$table} WHERE job_id = %d AND status = 'pending' ORDER BY id ASC LIMIT 1",
                 $jobId
             )
@@ -172,6 +173,7 @@ class JobRepository {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $wpdb->query(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
                 "UPDATE {$table} SET status = 'failed', last_error = %s, attempts = attempts + 1, updated_at = %s WHERE id = %d",
                 substr( $error, 0, 65535 ),
                 current_time( 'mysql' ),
@@ -193,6 +195,7 @@ class JobRepository {
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
                 "SELECT
                     COUNT(*) AS total,
                     SUM(status = 'complete') AS done,
@@ -249,13 +252,12 @@ class JobRepository {
         }
 
         $table        = Schema::tableName( Schema::JOBS );
-        $placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+        $in           = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+        $sql          = "SELECT * FROM {$table} WHERE status IN ({$in}) ORDER BY id ASC LIMIT 1";
 
         $row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE status IN ({$placeholders}) ORDER BY id ASC LIMIT 1",
-                ...$statuses
-            )
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
+            $wpdb->prepare( $sql, $statuses )
         );
 
         return $row ?: null;
@@ -272,6 +274,7 @@ class JobRepository {
 
         $table = Schema::tableName( Schema::JOBS );
         $row   = $wpdb->get_row(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
             $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $jobId )
         );
 
@@ -301,13 +304,9 @@ class JobRepository {
 
         $values[] = $limit;
 
+        $sql = "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table/WHERE are safely constructed; values are prepared.
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d",
-                ...$values
-            )
-        );
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $values ) );
         return is_array( $rows ) ? $rows : [];
     }
 }

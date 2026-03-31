@@ -44,11 +44,6 @@ class RulesRepository {
             [ '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s' ]
         );
 
-        if ( ! $wpdb->insert_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( '[coderembassy-ai-seo-automation] createRule failed. DB error: ' . $wpdb->last_error );
-            error_log( '[coderembassy-ai-seo-automation] Last query: ' . $wpdb->last_query );
-        }
-
         return (int) $wpdb->insert_id;
     }
 
@@ -130,6 +125,7 @@ class RulesRepository {
         global $wpdb;
         $table = Schema::tableName( Schema::RULES );
         $row   = $wpdb->get_row(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
             $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d LIMIT 1", $id )
         );
         return $row ? $this->decodeRow( $row ) : null;
@@ -149,6 +145,7 @@ class RulesRepository {
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; values are prepared.
                 "SELECT * FROM {$table} ORDER BY is_default DESC, id ASC LIMIT %d OFFSET %d",
                 $limit,
                 $offset
@@ -168,6 +165,7 @@ class RulesRepository {
         $table = Schema::tableName( Schema::RULES );
         $row   = $wpdb->get_row(
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is internal/known; value is prepared.
                 "SELECT * FROM {$table} WHERE is_default = %d ORDER BY id ASC LIMIT 1",
                 1
             )
@@ -194,6 +192,7 @@ class RulesRepository {
 
         $table = Schema::tableName( Schema::RULES );
         $rows  = $wpdb->get_results(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name is internal/known; no user input.
             "SELECT * FROM {$table} WHERE category_ids IS NOT NULL AND category_ids != '' ORDER BY id ASC"
         );
 
