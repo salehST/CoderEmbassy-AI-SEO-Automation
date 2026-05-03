@@ -419,31 +419,7 @@ export default function SettingsPanel() {
         </div>
       </form>
 
-      {/* ── Plan card ───────────────────────────────────────────────────────── */}
-      {usage && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Current Plan</h2>
-          <div className="flex items-center gap-3">
-            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold capitalize ${tierColor}`}>
-              {usage.tier}
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {usage.used} / {limitLabel} generations this month
-            </span>
-          </div>
-          {/* Upgrade link only shown on Pro (not Free, not Scale) */}
-          {IS_PRO && usage.tier !== 'scale' && (
-            <a
-              href={window.AiWoo?.pricingUrl ?? '#'}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block mt-1 px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors"
-            >
-              Upgrade to Scale →
-            </a>
-          )}
-        </div>
-      )}
+
 
       {/* ── License Key card (Pro/Scale only — not rendered on Free) ─────── */}
       {IS_PRO && (

@@ -55,6 +55,15 @@ class Assets {
             );
         }
 
+        if ( file_exists( $dist_dir . 'load-style.css' ) ) {
+            wp_enqueue_style(
+                'aiwoo-load-style',
+                $dist_url . 'load-style.css',
+                [],
+                CE_AI_SEO_VERSION
+            );
+        }
+
         wp_enqueue_script(
             'aiwoo-admin',
             $dist_url . 'main.js',

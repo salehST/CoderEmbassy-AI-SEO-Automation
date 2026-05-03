@@ -30,6 +30,19 @@ class MigrationManager {
         $this->repair_tables();
     }
 
+    /**
+     * Drop all plugin tables.
+     */
+    public function rollback_all(): void {
+        $migrations = array_reverse( $this->get_migrations() );
+
+        foreach ( $migrations as $migration ) {
+            $migration->down();
+        }
+
+        delete_option( self::OPTION_VERSION );
+    }
+
     private function repair_tables(): void {
         if ( ! function_exists( 'dbDelta' ) ) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';

@@ -77,10 +77,10 @@ class Plugin {
             self::$container->make( ApplyController::class )->register_routes();
             self::$container->make( RollbackController::class )->register_routes();
             self::$container->make( SettingsController::class )->register_routes();
+            self::$container->make( RulesController::class )->register_routes();
 
             // Pro + Scale features
             if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
-                self::$container->make( RulesController::class )->register_routes();
                 self::$container->make( ExportController::class )->register_routes();
                 self::$container->make( LicenseController::class )->register_routes();
             }
@@ -239,11 +239,11 @@ class Plugin {
             ) );
         }
 
-        if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
-            $c->singleton( RulesController::class, fn( Container $c ) => new RulesController(
-                $c->make( RulesRepository::class )
-            ) );
+        $c->singleton( RulesController::class, fn( Container $c ) => new RulesController(
+            $c->make( RulesRepository::class )
+        ) );
 
+        if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
             $c->singleton( ExportController::class, fn( Container $c ) => new ExportController(
                 $c->make( AuditRepository::class )
             ) );

@@ -87,7 +87,7 @@ class SeoController {
 
         register_rest_route( self::NAMESPACE, '/preview/(?P<product_id>\d+)', [
             [
-                'methods'             => \WP_REST_Server::READABLE,
+                'methods'             => [ \WP_REST_Server::READABLE, \WP_REST_Server::EDITABLE ],
                 'callback'            => [ $this, 'preview_product' ],
                 'permission_callback' => fn() => current_user_can( 'edit_products' ),
                 'args'                => [

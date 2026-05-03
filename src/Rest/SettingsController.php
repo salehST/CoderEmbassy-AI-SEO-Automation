@@ -112,7 +112,7 @@ class SettingsController {
         update_option( 'ce_ai_seo_provider', $provider );
 
         // Only update the key if a new one was explicitly submitted
-        $raw_key = sanitize_text_field( (string) ( $request->get_param( 'api_key' ) ?: '' ) );
+        $raw_key = trim( (string) ( $request->get_param( 'api_key' ) ?: '' ) );
         if ( ! empty( $raw_key ) ) {
             $enc = $this->encryptKey( $raw_key );
             update_option( "ce_ai_seo_{$provider}_key", $enc );
@@ -201,16 +201,19 @@ class SettingsController {
      * @return string Base64-encoded encrypted key.
      */
     private function encryptKey( string $key ): string {
-        $auth_key  = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
-        $salt      = defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : '';
-        $iv        = substr( $salt, 0, 16 );
+        $auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
+        $salt     = defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : '';
 
-        if ( strlen( $auth_key ) < 32 ) {
-            // Fall back to storing as-is if constants are not set (local dev only)
+        if ( empty( $auth_key ) ) {
             return $key;
         }
 
-        $encrypted = openssl_encrypt( $key, 'AES-256-CBC', $auth_key, OPENSSL_RAW_DATA, $iv );
-        return base64_encode( $encrypted );
+        // Hash to ensure consistent lengths for AES-256-CBC
+        $method = 'AES-256-CBC';
+        $encryption_key = hash( 'sha256', $auth_key, true );
+        $iv             = substr( hash( 'sha256', $salt ), 0, 16 );
+
+        $encrypted = openssl_encrypt( $key, $method, $encryption_key, OPENSSL_RAW_DATA, $iv );
+        return 'ENC:' . base64_encode( $encrypted );
     }
 }
