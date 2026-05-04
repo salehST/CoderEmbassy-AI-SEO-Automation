@@ -1,13 +1,13 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Api\AnthropicClient;
-use AiWooSeo\Api\GeminiClient;
-use AiWooSeo\Api\GroqClient;
-use AiWooSeo\Api\OpenAiClient;
-use AiWooSeo\Services\LicenseManager;
-use AiWooSeo\Services\UsageMeter;
+use CoderEmbassy\AiSeoAutomation\Api\AnthropicClient;
+use CoderEmbassy\AiSeoAutomation\Api\GeminiClient;
+use CoderEmbassy\AiSeoAutomation\Api\GroqClient;
+use CoderEmbassy\AiSeoAutomation\Api\OpenAiClient;
+use CoderEmbassy\AiSeoAutomation\Services\LicenseManager;
+use CoderEmbassy\AiSeoAutomation\Services\UsageMeter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,12 +29,12 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_settings' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
             ],
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'save_settings' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
                 'args'                => [
                     'provider'             => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
                     'api_key'              => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
@@ -52,7 +52,7 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'test_connection' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
             ],
         ] );
 
@@ -60,17 +60,17 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_usage' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
             ],
         ] );
     }
 
     /**
-     * GET /aiwoo/v1/settings — Return settings (API key masked).
+     * GET /coderembassy-ai-seo/v1/settings — Return settings (API key masked).
      */
     public function get_settings( \WP_REST_Request $request ): \WP_REST_Response {
-        $provider   = (string) get_option( 'aiwoo_provider', 'openai' );
-        $stored_key = (string) get_option( "aiwoo_{$provider}_key", '' );
+        $provider   = (string) get_option( 'ce_ai_seo_provider', 'openai' );
+        $stored_key = (string) get_option( "ce_ai_seo_{$provider}_key", '' );
         $masked_key = '';
         if ( ! empty( $stored_key ) ) {
             $masked_key = substr( $stored_key, 0, 8 ) . '••••••••';
@@ -79,12 +79,12 @@ class SettingsController {
         return rest_ensure_response( [
             'provider'            => $provider,
             'api_key'             => $masked_key,
-            'openai_model'        => (string) get_option( 'aiwoo_openai_model', 'gpt-4o-mini' ),
-            'anthropic_model'     => (string) get_option( 'aiwoo_anthropic_model', 'claude-haiku-4-5-20251001' ),
-            'groq_model'          => (string) get_option( 'aiwoo_groq_model', 'llama-3.3-70b-versatile' ),
-            'gemini_model'        => (string) get_option( 'aiwoo_gemini_model', 'gemini-2.0-flash' ),
-            'onboarding_complete' => (bool) get_option( 'aiwoo_onboarding_complete', false ),
-            'autopilot_mode'      => (string) get_option( 'aiwoo_autopilot_mode', 'off' ),
+            'openai_model'        => (string) get_option( 'ce_ai_seo_openai_model', 'gpt-4o-mini' ),
+            'anthropic_model'     => (string) get_option( 'ce_ai_seo_anthropic_model', 'claude-haiku-4-5-20251001' ),
+            'groq_model'          => (string) get_option( 'ce_ai_seo_groq_model', 'llama-3.3-70b-versatile' ),
+            'gemini_model'        => (string) get_option( 'ce_ai_seo_gemini_model', 'gemini-2.0-flash' ),
+            'onboarding_complete' => (bool) get_option( 'ce_ai_seo_onboarding_complete', false ),
+            'autopilot_mode'      => (string) get_option( 'ce_ai_seo_autopilot_mode', 'off' ),
         ] );
     }
 
@@ -100,7 +100,7 @@ class SettingsController {
     }
 
     /**
-     * POST /aiwoo/v1/settings — Save settings, encrypting the API key.
+     * POST /coderembassy-ai-seo/v1/settings — Save settings, encrypting the API key.
      */
     public function save_settings( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $provider = sanitize_text_field( (string) ( $request->get_param( 'provider' ) ?: 'openai' ) );
@@ -109,47 +109,47 @@ class SettingsController {
             return new \WP_Error( 'invalid_provider', 'Provider must be one of: openai, anthropic, groq, gemini.', [ 'status' => 400 ] );
         }
 
-        update_option( 'aiwoo_provider', $provider );
+        update_option( 'ce_ai_seo_provider', $provider );
 
         // Only update the key if a new one was explicitly submitted
-        $raw_key = sanitize_text_field( (string) ( $request->get_param( 'api_key' ) ?: '' ) );
+        $raw_key = trim( (string) ( $request->get_param( 'api_key' ) ?: '' ) );
         if ( ! empty( $raw_key ) ) {
             $enc = $this->encryptKey( $raw_key );
-            update_option( "aiwoo_{$provider}_key", $enc );
+            update_option( "ce_ai_seo_{$provider}_key", $enc );
         }
 
         if ( $model = sanitize_text_field( (string) ( $request->get_param( 'openai_model' ) ?: '' ) ) ) {
-            update_option( 'aiwoo_openai_model', $model );
+            update_option( 'ce_ai_seo_openai_model', $model );
         }
         if ( $model = sanitize_text_field( (string) ( $request->get_param( 'anthropic_model' ) ?: '' ) ) ) {
-            update_option( 'aiwoo_anthropic_model', $model );
+            update_option( 'ce_ai_seo_anthropic_model', $model );
         }
         if ( $model = sanitize_text_field( (string) ( $request->get_param( 'groq_model' ) ?: '' ) ) ) {
-            update_option( 'aiwoo_groq_model', $model );
+            update_option( 'ce_ai_seo_groq_model', $model );
         }
         if ( $model = sanitize_text_field( (string) ( $request->get_param( 'gemini_model' ) ?: '' ) ) ) {
-            update_option( 'aiwoo_gemini_model', $model );
+            update_option( 'ce_ai_seo_gemini_model', $model );
         }
 
         if ( $request->get_param( 'onboarding_complete' ) !== null ) {
-            update_option( 'aiwoo_onboarding_complete', 1 );
+            update_option( 'ce_ai_seo_onboarding_complete', 1 );
         }
 
         $autopilot = $request->get_param( 'autopilot_mode' );
         if ( $autopilot !== null && $autopilot !== '' ) {
             $autopilot = $this->sanitize_autopilot_mode( $autopilot );
-            update_option( 'aiwoo_autopilot_mode', $autopilot );
+            update_option( 'ce_ai_seo_autopilot_mode', $autopilot );
         }
 
         return rest_ensure_response( [ 'saved' => true ] );
     }
 
     /**
-     * POST /aiwoo/v1/test-connection — Test AI provider credentials.
+     * POST /coderembassy-ai-seo/v1/test-connection — Test AI provider credentials.
      */
     public function test_connection( \WP_REST_Request $request ): \WP_REST_Response {
-        $provider = (string) get_option( 'aiwoo_provider', 'openai' );
-        $enc_key  = (string) get_option( "aiwoo_{$provider}_key", '' );
+        $provider = (string) get_option( 'ce_ai_seo_provider', 'openai' );
+        $enc_key  = (string) get_option( "ce_ai_seo_{$provider}_key", '' );
 
         try {
             if ( $provider === 'anthropic' ) {
@@ -177,7 +177,7 @@ class SettingsController {
     }
 
     /**
-     * GET /aiwoo/v1/usage — Current tier and usage (no usage-based limit).
+     * GET /coderembassy-ai-seo/v1/usage — Current tier and usage (no usage-based limit).
      */
     public function get_usage( \WP_REST_Request $request ): \WP_REST_Response {
         $summary = $this->meter->getUsageSummary();
@@ -190,7 +190,7 @@ class SettingsController {
             'pct'            => $summary['percent'],
             'reset_date'     => $reset_date,
             'license_status' => $this->license?->getStatus() ?? 'inactive',
-            'upgrade_url'    => defined( 'AIWOO_STORE_URL' ) ? AIWOO_STORE_URL . '/pricing' : '',
+            'upgrade_url'    => defined( 'CE_AI_SEO_STORE_URL' ) ? CE_AI_SEO_STORE_URL . '/pricing' : '',
         ] );
     }
 
@@ -201,16 +201,19 @@ class SettingsController {
      * @return string Base64-encoded encrypted key.
      */
     private function encryptKey( string $key ): string {
-        $auth_key  = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
-        $salt      = defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : '';
-        $iv        = substr( $salt, 0, 16 );
+        $auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
+        $salt     = defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : '';
 
-        if ( strlen( $auth_key ) < 32 ) {
-            // Fall back to storing as-is if constants are not set (local dev only)
+        if ( empty( $auth_key ) ) {
             return $key;
         }
 
-        $encrypted = openssl_encrypt( $key, 'AES-256-CBC', $auth_key, OPENSSL_RAW_DATA, $iv );
-        return base64_encode( $encrypted );
+        // Hash to ensure consistent lengths for AES-256-CBC
+        $method = 'AES-256-CBC';
+        $encryption_key = hash( 'sha256', $auth_key, true );
+        $iv             = substr( hash( 'sha256', $salt ), 0, 16 );
+
+        $encrypted = openssl_encrypt( $key, $method, $encryption_key, OPENSSL_RAW_DATA, $iv );
+        return 'ENC:' . base64_encode( $encrypted );
     }
 }

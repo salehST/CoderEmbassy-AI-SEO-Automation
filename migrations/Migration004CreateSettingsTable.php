@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Database\Migrations;
+namespace CoderEmbassy\AiSeoAutomation\Database\Migrations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,12 +27,12 @@ class Migration004CreateSettingsTable {
         ) {$charset};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
+        dbDelta( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dbDelta() executes schema SQL.
     }
 
     public function down(): void {
         global $wpdb;
         $table = $wpdb->prefix . self::TABLE;
-        $wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+        $wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Schema operation, no user input.
     }
 }

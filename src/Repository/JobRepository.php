@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Repository;
+namespace CoderEmbassy\AiSeoAutomation\Repository;
 
-use AiWooSeo\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
  * CRUD operations for jobs and job_items tables.
  */
 class JobRepository {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     /**
      * Create a new job and batch-insert all product items.
@@ -75,22 +76,18 @@ class JobRepository {
         global $wpdb;
 
         $items_table = Schema::tableName( Schema::JOB_ITEMS );
-        $placeholders = [];
-        $values       = [];
-
         foreach ( $productIds as $productId ) {
-            $placeholders[] = '(%d, %d, %s, %s)';
-            $values[]       = $jobId;
-            $values[]       = $productId;
-            $values[]       = 'pending';
-            $values[]       = $now;
+            $wpdb->insert(
+                $items_table,
+                [
+                    'job_id'     => $jobId,
+                    'product_id' => (int) $productId,
+                    'status'     => 'pending',
+                    'created_at' => $now,
+                ],
+                [ '%d', '%d', '%s', '%s' ]
+            );
         }
-
-        $sql = "INSERT INTO {$items_table} (job_id, product_id, status, created_at) VALUES "
-            . implode( ', ', $placeholders );
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $wpdb->query( $wpdb->prepare( $sql, $values ) );
     }
 
     /**
@@ -106,7 +103,8 @@ class JobRepository {
 
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE job_id = %d AND status = 'pending' ORDER BY id ASC LIMIT 1",
+                'SELECT * FROM %i WHERE job_id = %d AND status = \'pending\' ORDER BY id ASC LIMIT 1',
+                $table,
                 $jobId
             )
         );
@@ -172,7 +170,8 @@ class JobRepository {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$table} SET status = 'failed', last_error = %s, attempts = attempts + 1, updated_at = %s WHERE id = %d",
+                'UPDATE %i SET status = \'failed\', last_error = %s, attempts = attempts + 1, updated_at = %s WHERE id = %d',
+                $table,
                 substr( $error, 0, 65535 ),
                 current_time( 'mysql' ),
                 $itemId
@@ -197,8 +196,9 @@ class JobRepository {
                     COUNT(*) AS total,
                     SUM(status = 'complete') AS done,
                     SUM(status = 'failed') AS failed
-                FROM {$table}
+                FROM %i
                 WHERE job_id = %d",
+                $table,
                 $jobId
             )
         );
@@ -248,14 +248,14 @@ class JobRepository {
             return null;
         }
 
-        $table        = Schema::tableName( Schema::JOBS );
-        $placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+        $table = Schema::tableName( Schema::JOBS );
+        $in    = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+        $sql   = "SELECT * FROM %i WHERE status IN ({$in}) ORDER BY id ASC LIMIT 1";
+        $args  = array_merge( [ $table ], array_values( $statuses ) );
 
         $row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE status IN ({$placeholders}) ORDER BY id ASC LIMIT 1",
-                ...$statuses
-            )
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is built with placeholders; args are prepared.
+            $wpdb->prepare( $sql, $args )
         );
 
         return $row ?: null;
@@ -272,7 +272,7 @@ class JobRepository {
 
         $table = Schema::tableName( Schema::JOBS );
         $row   = $wpdb->get_row(
-            $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $jobId )
+            $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table, $jobId )
         );
 
         return $row ?: null;
@@ -288,26 +288,23 @@ class JobRepository {
         global $wpdb;
 
         $table  = Schema::tableName( Schema::JOBS );
-        $where  = [];
-        $values = [];
+        $query  = 'SELECT * FROM %i WHERE 1=1';
+        $values = [ $table ];
 
         if ( ! empty( $filters['status'] ) ) {
-            $where[]  = 'status = %s';
+            $query   .= ' AND status = %s';
             $values[] = sanitize_key( $filters['status'] );
         }
 
-        $where_sql = $where ? ( 'WHERE ' . implode( ' AND ', $where ) ) : '';
         $limit     = min( (int) ( $filters['limit'] ?? 20 ), 200 );
 
         $values[] = $limit;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table/WHERE are safely constructed; values are prepared.
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} {$where_sql} ORDER BY id DESC LIMIT %d",
-                ...$values
-            )
-        );
+        $query .= ' ORDER BY id DESC LIMIT %d';
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is built from fixed fragments; values are prepared.
+        $rows   = $wpdb->get_results( $wpdb->prepare( $query, $values ) );
         return is_array( $rows ) ? $rows : [];
     }
+
+    // phpcs:enable
 }

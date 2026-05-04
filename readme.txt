@@ -1,12 +1,12 @@
 === CoderEmbassy AI SEO Automation ===
-Contributors: codersaleh
+Contributors: codersaleh,phpcoderhannan
 Tags: woocommerce, seo, ai, openai, automation
 Requires at least: 6.4
 Tested up to: 6.9
 Requires PHP: 8.0
 Stable tag: 1.0.0
-License: GPL-3.0-or-later
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Automatically generate SEO titles, meta descriptions, JSON-LD schema, and image alt text for WooCommerce products using AI.
 

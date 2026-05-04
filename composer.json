@@ -1,5 +1,5 @@
 {
-    "name": "aiwoo/ai-woo-seo",
+    "name": "coderembassy/ai-seo-automation",
     "description": "AI WooCommerce Product SEO Automation",
     "type": "project",
     "license": "GPL-3.0-or-later",
@@ -13,13 +13,13 @@
     },
     "autoload": {
         "psr-4": {
-            "AiWooSeo\\": "src/",
-            "AiWooSeo\\Database\\Migrations\\": "migrations/"
+            "CoderEmbassy\\AiSeoAutomation\\": "src/",
+            "CoderEmbassy\\AiSeoAutomation\\Database\\Migrations\\": "migrations/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "AiWooSeo\\Tests\\": "tests/"
+            "CoderEmbassy\\AiSeoAutomation\\Tests\\": "tests/"
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Repository;
+namespace CoderEmbassy\AiSeoAutomation\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,6 +8,7 @@ defined( 'ABSPATH' ) || exit;
  * Fetches and updates WooCommerce product data for SEO.
  */
 class ProductRepository {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     /**
      * Get product data for AI generation.
@@ -63,7 +64,7 @@ class ProductRepository {
             'categories'        => $categories,
             'attributes'        => $attributes,
             'brand'             => $brand,
-            'focus_keyphrase'   => (string) get_post_meta( $productId, '_aiwoo_focus_keyphrase', true ),
+            'focus_keyphrase'   => (string) get_post_meta( $productId, '_ce_ai_seo_focus_keyphrase', true ),
         ];
     }
 
@@ -78,10 +79,10 @@ class ProductRepository {
      */
     public function updateSeoFields( int $productId, array $seoData, int $userId = 0, ?int $jobId = null ): void {
         $meta_keys = [
-            'title'  => '_aiwoo_seo_title',
-            'meta'   => '_aiwoo_seo_meta',
-            'alt'    => '_aiwoo_seo_alt',
-            'schema' => '_aiwoo_seo_schema',
+            'title'  => '_ce_ai_seo_seo_title',
+            'meta'   => '_ce_ai_seo_seo_meta',
+            'alt'    => '_ce_ai_seo_seo_alt',
+            'schema' => '_ce_ai_seo_seo_schema',
         ];
 
         foreach ( $meta_keys as $key => $meta_key ) {
@@ -95,7 +96,7 @@ class ProductRepository {
 
             update_post_meta( $productId, $meta_key, $new_value );
 
-            do_action( 'aiwoo_seo_field_updated', $productId, $meta_key, $old_value, $new_value, $userId, $jobId );
+            do_action( 'ce_ai_seo_seo_field_updated', $productId, $meta_key, $old_value, $new_value, $userId, $jobId );
         }
 
         // ── Write-through to third-party SEO plugins (unconditional) ─────────
@@ -108,11 +109,15 @@ class ProductRepository {
         // $wpdb->replace() always INSERTs instead of updating. Use DELETE + INSERT.
         global $wpdb;
         if ( isset( $seoData['title'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_title' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_title',    'meta_value' => $seoData['title'] ] );
         }
         if ( isset( $seoData['meta'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_metadesc' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $productId, 'meta_key' => '_yoast_wpseo_metadesc', 'meta_value' => $seoData['meta'] ] );
         }
         wp_cache_delete( $productId, 'post_meta' );
@@ -135,4 +140,5 @@ class ProductRepository {
         }
     }
 
+    // phpcs:enable
 }

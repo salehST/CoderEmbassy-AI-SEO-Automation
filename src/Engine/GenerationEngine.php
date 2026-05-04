@@ -1,11 +1,11 @@
 <?php
 
-namespace AiWooSeo\Engine;
+namespace CoderEmbassy\AiSeoAutomation\Engine;
 
-use AiWooSeo\Api\ApiClientInterface;
-use AiWooSeo\Repository\ProductRepository;
-use AiWooSeo\Repository\RulesRepository;
-use AiWooSeo\Services\UsageMeter;
+use CoderEmbassy\AiSeoAutomation\Api\ApiClientInterface;
+use CoderEmbassy\AiSeoAutomation\Repository\ProductRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\RulesRepository;
+use CoderEmbassy\AiSeoAutomation\Services\UsageMeter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -91,7 +91,7 @@ class GenerationEngine {
     private function resolveProductLanguage( int $productId ): string {
         if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
             $lang = apply_filters(
-                'wpml_element_language_code',
+                'wpml_element_language_code', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This is a WPML-defined filter we consume, not a hook we register
                 null,
                 [ 'element_id' => $productId, 'element_type' => 'post_product' ]
             );

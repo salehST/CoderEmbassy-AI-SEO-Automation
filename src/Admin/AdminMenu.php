@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Admin;
+namespace CoderEmbassy\AiSeoAutomation\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,10 +15,10 @@ class AdminMenu {
 
     public function add_menu_page(): void {
         add_menu_page(
-            __( 'CoderEmbassy AI SEO Automation', 'ai-woo-seo' ),
-            __( 'AI SEO', 'ai-woo-seo' ),
+            __( 'CoderEmbassy AI SEO Automation', 'coderembassy-ai-seo-automation' ),
+            __( 'AI SEO', 'coderembassy-ai-seo-automation' ),
             'manage_woocommerce',
-            'aiwoo-seo',
+            'ce-ai-seo',
             [ $this, 'render_page' ],
             'dashicons-superhero',
             58
@@ -26,18 +26,18 @@ class AdminMenu {
     }
 
     /**
-     * Render the admin page shell. React mounts into #aiwoo-admin-root.
+     * Render the admin page shell. React mounts into #ce-ai-seo-admin-root.
      *
      * WordPress outputs .notice divs inside .wrap (via the admin_notices hook)
-     * which fires before our content. #aiwoo-admin-root is a separate sibling
+     * which fires before our content. #ce-ai-seo-admin-root is a separate sibling
      * so WP notices appear above our plugin panel, never inside it.
      */
     public function render_page(): void {
         ?>
         <div class="wrap">
-            <h1 class="screen-reader-text"><?php esc_html_e( 'CoderEmbassy AI SEO Automation', 'ai-woo-seo' ); ?></h1>
+            <h1 class="screen-reader-text"><?php esc_html_e( 'CoderEmbassy AI SEO Automation', 'coderembassy-ai-seo-automation' ); ?></h1>
         </div>
-        <div id="aiwoo-admin-root"></div>
+        <div id="ce-ai-seo-admin-root"></div>
         <?php
     }
 }

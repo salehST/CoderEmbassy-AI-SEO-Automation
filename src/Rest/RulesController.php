@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Repository\RulesRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\RulesRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -10,11 +10,11 @@ defined( 'ABSPATH' ) || exit;
  * REST controller for the rules engine.
  *
  * Routes (all require manage_woocommerce):
- *  GET    /aiwoo/v1/rules         — list rules
- *  POST   /aiwoo/v1/rules         — create rule
- *  GET    /aiwoo/v1/rules/{id}    — get single rule
- *  POST   /aiwoo/v1/rules/{id}    — update rule
- *  DELETE /aiwoo/v1/rules/{id}    — delete rule (blocked if last default)
+ *  GET    /coderembassy-ai-seo/v1/rules         — list rules
+ *  POST   /coderembassy-ai-seo/v1/rules         — create rule
+ *  GET    /coderembassy-ai-seo/v1/rules/{id}    — get single rule
+ *  POST   /coderembassy-ai-seo/v1/rules/{id}    — update rule
+ *  DELETE /coderembassy-ai-seo/v1/rules/{id}    — delete rule (blocked if last default)
  */
 class RulesController {
 
@@ -27,7 +27,7 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'list_rules' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'limit'  => [ 'type' => 'integer', 'default' => 50,  'sanitize_callback' => 'absint' ],
                     'offset' => [ 'type' => 'integer', 'default' => 0,   'sanitize_callback' => 'absint' ],
@@ -36,7 +36,7 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'create_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->rule_args( true ),
             ],
         ] );
@@ -45,19 +45,19 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->id_args(),
             ],
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'update_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => array_merge( $this->id_args(), $this->rule_args( false ) ),
             ],
             [
                 'methods'             => \WP_REST_Server::DELETABLE,
                 'callback'            => [ $this, 'delete_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->id_args(),
             ],
         ] );
@@ -66,7 +66,7 @@ class RulesController {
     // ── Handlers ──────────────────────────────────────────────────────────────
 
     /**
-     * GET /aiwoo/v1/rules
+     * GET /coderembassy-ai-seo/v1/rules
      */
     public function list_rules( \WP_REST_Request $request ): \WP_REST_Response {
         $limit  = (int) ( $request->get_param( 'limit' )  ?: 50 );
@@ -78,11 +78,11 @@ class RulesController {
     }
 
     /**
-     * POST /aiwoo/v1/rules
+     * POST /coderembassy-ai-seo/v1/rules
      */
     public function create_rule( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         // Free tier: max 1 rule
-        if ( ( defined( 'AIWOO_TIER' ) ? AIWOO_TIER : 'free' ) === 'free' ) {
+        if ( ( defined( 'CE_AI_SEO_TIER' ) ? CE_AI_SEO_TIER : 'free' ) === 'free' ) {
             $existing = $this->rules->listRules( 2, 0 );
             if ( count( $existing ) >= 1 ) {
                 return new \WP_Error(
@@ -111,7 +111,7 @@ class RulesController {
     }
 
     /**
-     * GET /aiwoo/v1/rules/{id}
+     * GET /coderembassy-ai-seo/v1/rules/{id}
      */
     public function get_rule( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $rule = $this->rules->getRule( (int) $request->get_param( 'id' ) );
@@ -124,7 +124,7 @@ class RulesController {
     }
 
     /**
-     * POST /aiwoo/v1/rules/{id}
+     * POST /coderembassy-ai-seo/v1/rules/{id}
      */
     public function update_rule( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $id   = (int) $request->get_param( 'id' );
@@ -145,7 +145,7 @@ class RulesController {
     }
 
     /**
-     * DELETE /aiwoo/v1/rules/{id}
+     * DELETE /coderembassy-ai-seo/v1/rules/{id}
      * Blocked when deleting the last rule that is marked as default.
      */
     public function delete_rule( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {

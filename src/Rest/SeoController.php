@@ -1,12 +1,12 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Engine\GenerationEngine;
-use AiWooSeo\Jobs\JobManager;
-use AiWooSeo\Jobs\Worker;
-use AiWooSeo\Repository\JobRepository;
-use AiWooSeo\Services\CostEstimator;
+use CoderEmbassy\AiSeoAutomation\Engine\GenerationEngine;
+use CoderEmbassy\AiSeoAutomation\Jobs\JobManager;
+use CoderEmbassy\AiSeoAutomation\Jobs\Worker;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Services\CostEstimator;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class SeoController {
 
-    public const NAMESPACE = 'aiwoo/v1';
+    public const NAMESPACE = 'coderembassy-ai-seo/v1';
 
     public function __construct(
         private JobManager $jobManager,
@@ -29,7 +29,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'create_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'name'          => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
                     'product_ids'   => [ 'type' => 'array',   'default' => [] ],  // explicit list (no categories)
@@ -46,7 +46,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -54,7 +54,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::DELETABLE,
                 'callback'            => [ $this, 'cancel_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -65,7 +65,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'process_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -76,7 +76,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'estimate_cost' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'product_count' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'provider'      => [ 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => 'openai' ],
@@ -87,9 +87,9 @@ class SeoController {
 
         register_rest_route( self::NAMESPACE, '/preview/(?P<product_id>\d+)', [
             [
-                'methods'             => \WP_REST_Server::READABLE,
+                'methods'             => [ \WP_REST_Server::READABLE, \WP_REST_Server::EDITABLE ],
                 'callback'            => [ $this, 'preview_product' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'product_id'      => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'focus_keyphrase' => [
@@ -103,7 +103,7 @@ class SeoController {
     }
 
     /**
-     * POST /aiwoo/v1/job — Create a bulk generation job.
+     * POST /coderembassy-ai-seo/v1/job — Create a bulk generation job.
      *
      * Two modes:
      *  1. Explicit: product_ids provided → use them directly.
@@ -174,7 +174,7 @@ class SeoController {
     }
 
     /**
-     * GET /aiwoo/v1/job/{id} — Get job status and progress.
+     * GET /coderembassy-ai-seo/v1/job/{id} — Get job status and progress.
      */
     public function get_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id = absint( $request->get_param( 'id' ) );
@@ -200,7 +200,7 @@ class SeoController {
     }
 
     /**
-     * DELETE /aiwoo/v1/job/{id} — Cancel a pending job.
+     * DELETE /coderembassy-ai-seo/v1/job/{id} — Cancel a pending job.
      */
     public function cancel_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id = absint( $request->get_param( 'id' ) );
@@ -220,7 +220,7 @@ class SeoController {
     }
 
     /**
-     * POST /aiwoo/v1/job/{id}/process — Synchronously run one Worker batch for a job.
+     * POST /coderembassy-ai-seo/v1/job/{id}/process — Synchronously run one Worker batch for a job.
      * Called by the frontend while polling; works on all tiers without WP-Cron.
      */
     public function process_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
@@ -249,7 +249,7 @@ class SeoController {
     }
 
     /**
-     * GET /aiwoo/v1/estimate — Return cost estimate for a planned bulk job.
+     * GET /coderembassy-ai-seo/v1/estimate — Return cost estimate for a planned bulk job.
      */
     public function estimate_cost( \WP_REST_Request $request ): \WP_REST_Response {
         $product_count = absint( $request->get_param( 'product_count' ) );
@@ -262,14 +262,14 @@ class SeoController {
     }
 
     /**
-     * GET /aiwoo/v1/preview/{product_id} — On-demand single-product preview.
+     * GET /coderembassy-ai-seo/v1/preview/{product_id} — On-demand single-product preview.
      */
     public function preview_product( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $product_id = absint( $request->get_param( 'product_id' ) );
 
         $keyphrase = sanitize_text_field( (string) $request->get_param( 'focus_keyphrase' ) );
         if ( $keyphrase !== '' ) {
-            update_post_meta( $product_id, '_aiwoo_focus_keyphrase', $keyphrase );
+            update_post_meta( $product_id, '_ce_ai_seo_focus_keyphrase', $keyphrase );
         }
 
         try {
@@ -284,7 +284,7 @@ class SeoController {
         return rest_ensure_response( [
             'product_id'      => $product_id,
             'preview'         => $preview,
-            'focus_keyphrase' => get_post_meta( $product_id, '_aiwoo_focus_keyphrase', true ) ?: '',
+            'focus_keyphrase' => get_post_meta( $product_id, '_ce_ai_seo_focus_keyphrase', true ) ?: '',
         ] );
     }
 }

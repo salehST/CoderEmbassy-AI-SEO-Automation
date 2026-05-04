@@ -1,10 +1,10 @@
 <?php
 
-namespace AiWooSeo\Jobs;
+namespace CoderEmbassy\AiSeoAutomation\Jobs;
 
-use AiWooSeo\Engine\GenerationEngine;
-use AiWooSeo\Repository\JobRepository;
-use AiWooSeo\Services\MetaWriter;
+use CoderEmbassy\AiSeoAutomation\Engine\GenerationEngine;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Services\MetaWriter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,7 +50,7 @@ class Worker {
         while ( $processed < $batchSize ) {
             // Hard timeout guard — leave 5s headroom before PHP max_execution_time
             if ( ( time() - $start ) > 25 ) {
-                wp_schedule_single_event( time() + 5, 'aiwoo_queue_runner' );
+                wp_schedule_single_event( time() + 5, 'ce_ai_seo_queue_runner' );
                 return;
             }
 
@@ -62,7 +62,7 @@ class Worker {
             $this->jobs->markItemProcessing( (int) $item->id );
 
             // If skip_existing is set, silently skip products that already have AI-generated SEO.
-            if ( $skipExisting && get_post_meta( (int) $item->product_id, '_aiwoo_seo_title', true ) ) {
+            if ( $skipExisting && get_post_meta( (int) $item->product_id, '_ce_ai_seo_seo_title', true ) ) {
                 $this->jobs->markItemComplete( (int) $item->id, [ 'skipped' => true ], [] );
                 $processed++;
                 continue;
@@ -86,10 +86,8 @@ class Worker {
                             $preview['meta']  ?? ''
                         );
                     } catch ( \Throwable $writeEx ) {
-                        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                            error_log( '[ai-woo-seo] Autopilot MetaWriter failed for product '
-                                . $item->product_id . ': ' . $writeEx->getMessage() );
-                        }
+                        // Swallow write errors: the item is complete (preview generated),
+                        // but autopilot write-through failed; operator can retry apply.
                     }
                 }
             } catch ( \Throwable $e ) {

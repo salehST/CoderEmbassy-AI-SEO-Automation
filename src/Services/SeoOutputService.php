@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Services;
+namespace CoderEmbassy\AiSeoAutomation\Services;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -64,14 +64,14 @@ class SeoOutputService {
         }
 
         $product_id = (int) get_queried_object_id();
-        $title      = (string) get_post_meta( $product_id, '_aiwoo_seo_title', true );
-        $desc       = (string) get_post_meta( $product_id, '_aiwoo_seo_meta',  true );
+        $title      = (string) get_post_meta( $product_id, '_ce_ai_seo_seo_title', true );
+        $desc       = (string) get_post_meta( $product_id, '_ce_ai_seo_seo_meta',  true );
 
         if ( empty( $title ) && empty( $desc ) ) {
             return;
         }
         ?>
-        <!-- AI WooCommerce SEO -->
+        <!-- CoderEmbassy AI SEO -->
         <?php if ( $desc ) : ?>
         <meta name="description" content="<?php echo esc_attr( $desc ); ?>">
         <?php endif; ?>
@@ -100,7 +100,7 @@ class SeoOutputService {
         if ( ! is_singular( 'product' ) ) {
             return $title;
         }
-        $ai_title = (string) get_post_meta( get_the_ID(), '_aiwoo_seo_title', true );
+        $ai_title = (string) get_post_meta( get_the_ID(), '_ce_ai_seo_seo_title', true );
         return ! empty( $ai_title ) ? $ai_title : $title;
     }
 
@@ -114,7 +114,7 @@ class SeoOutputService {
         if ( ! is_singular( 'product' ) ) {
             return $desc;
         }
-        $ai_meta = (string) get_post_meta( get_the_ID(), '_aiwoo_seo_meta', true );
+        $ai_meta = (string) get_post_meta( get_the_ID(), '_ce_ai_seo_seo_meta', true );
         return ! empty( $ai_meta ) ? $ai_meta : $desc;
     }
 
@@ -130,7 +130,7 @@ class SeoOutputService {
             return $attrs;
         }
 
-        $alt_data = get_post_meta( $attachment->post_parent, '_aiwoo_seo_alt', true );
+        $alt_data = get_post_meta( $attachment->post_parent, '_ce_ai_seo_seo_alt', true );
         if ( empty( $alt_data ) ) {
             return $attrs;
         }

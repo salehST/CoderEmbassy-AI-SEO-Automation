@@ -1,11 +1,11 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Database\Schema;
-use AiWooSeo\Repository\AuditRepository;
-use AiWooSeo\Repository\JobRepository;
-use AiWooSeo\Repository\ProductRepository;
+use CoderEmbassy\AiSeoAutomation\Database\Schema;
+use CoderEmbassy\AiSeoAutomation\Repository\AuditRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\ProductRepository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * REST controller for applying previews to products.
  */
 class ApplyController {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     public function __construct(
         private JobRepository $jobRepo,
@@ -25,7 +26,7 @@ class ApplyController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'apply_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'job_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -36,7 +37,7 @@ class ApplyController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'apply_single' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'job_id'     => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'product_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
@@ -48,7 +49,7 @@ class ApplyController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'apply_preview' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'product_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -57,7 +58,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply/{job_id} — Apply all completed previews in a job.
+     * POST /coderembassy-ai-seo/v1/apply/{job_id} — Apply all completed previews in a job.
      */
     public function apply_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id  = absint( $request->get_param( 'job_id' ) );
@@ -94,7 +95,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply/{job_id}/{product_id} — Apply preview for a single product.
+     * POST /coderembassy-ai-seo/v1/apply/{job_id}/{product_id} — Apply preview for a single product.
      */
     public function apply_single( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id     = absint( $request->get_param( 'job_id' ) );
@@ -122,7 +123,7 @@ class ApplyController {
     }
 
     /**
-     * POST /aiwoo/v1/apply-preview/{product_id}
+     * POST /coderembassy-ai-seo/v1/apply-preview/{product_id}
      *
      * Directly applies a preview object from the metabox to a product's SEO
      * fields without requiring an existing bulk job.
@@ -163,10 +164,10 @@ class ApplyController {
      */
     private function applyPreviewToProduct( int $product_id, array $preview, int $user_id, int $job_id ): void {
         $meta_map = [
-            'title'  => '_aiwoo_seo_title',
-            'meta'   => '_aiwoo_seo_meta',
-            'alt'    => '_aiwoo_seo_alt',
-            'schema' => '_aiwoo_seo_schema',
+            'title'  => '_ce_ai_seo_seo_title',
+            'meta'   => '_ce_ai_seo_seo_meta',
+            'alt'    => '_ce_ai_seo_seo_alt',
+            'schema' => '_ce_ai_seo_seo_schema',
         ];
 
         foreach ( $meta_map as $key => $meta_key ) {
@@ -207,11 +208,15 @@ class ApplyController {
         // We must DELETE the old row first, then INSERT fresh, then clear
         // WordPress's internal object cache for this post.
         if ( isset( $preview['title'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_title' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_title', 'meta_value' => $preview['title'] ] );
         }
         if ( isset( $preview['meta'] ) ) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->delete( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_metadesc' ] );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required targeted postmeta write-through.
             $wpdb->insert( $wpdb->postmeta, [ 'post_id' => $product_id, 'meta_key' => '_yoast_wpseo_metadesc', 'meta_value' => $preview['meta'] ] );
         }
         // Flush WP's postmeta object cache so subsequent get_post_meta() calls
@@ -248,7 +253,8 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $rows  = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE job_id = %d AND status = 'complete' ORDER BY id ASC",
+                'SELECT * FROM %i WHERE job_id = %d AND status = \'complete\' ORDER BY id ASC',
+                $table,
                 $job_id
             )
         );
@@ -267,11 +273,14 @@ class ApplyController {
         $table = Schema::tableName( Schema::JOB_ITEMS );
         $row   = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE job_id = %d AND product_id = %d AND status = 'complete' LIMIT 1",
+                'SELECT * FROM %i WHERE job_id = %d AND product_id = %d AND status = \'complete\' LIMIT 1',
+                $table,
                 $job_id,
                 $product_id
             )
         );
         return $row ?: null;
     }
+
+    // phpcs:enable
 }

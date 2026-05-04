@@ -1,8 +1,8 @@
 <?php
 
-namespace AiWooSeo\Rest;
+namespace CoderEmbassy\AiSeoAutomation\Rest;
 
-use AiWooSeo\Services\RollbackManager;
+use CoderEmbassy\AiSeoAutomation\Services\RollbackManager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,7 +18,7 @@ class RollbackController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'rollback_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'job_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -29,7 +29,7 @@ class RollbackController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'rollback_single' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'job_id'     => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'product_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
@@ -39,7 +39,7 @@ class RollbackController {
     }
 
     /**
-     * POST /aiwoo/v1/rollback/{job_id} — Roll back all changes from a job.
+     * POST /coderembassy-ai-seo/v1/rollback/{job_id} — Roll back all changes from a job.
      */
     public function rollback_job( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id = absint( $request->get_param( 'job_id' ) );
@@ -54,7 +54,7 @@ class RollbackController {
     }
 
     /**
-     * POST /aiwoo/v1/rollback/{job_id}/{product_id} — Roll back a single product.
+     * POST /coderembassy-ai-seo/v1/rollback/{job_id}/{product_id} — Roll back a single product.
      */
     public function rollback_single( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
         $job_id     = absint( $request->get_param( 'job_id' ) );

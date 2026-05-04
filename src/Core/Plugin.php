@@ -1,36 +1,36 @@
 <?php
 
-namespace AiWooSeo\Core;
+namespace CoderEmbassy\AiSeoAutomation\Core;
 
-use AiWooSeo\Admin\AdminMenu;
-use AiWooSeo\Admin\MetaBox;
-use AiWooSeo\Api\ApiClientInterface;
-use AiWooSeo\Api\AnthropicClient;
-use AiWooSeo\Api\GeminiClient;
-use AiWooSeo\Api\GroqClient;
-use AiWooSeo\Api\OpenAiClient;
-use AiWooSeo\Engine\GenerationEngine;
-use AiWooSeo\Jobs\JobManager;
-use AiWooSeo\Jobs\Queue;
-use AiWooSeo\Jobs\RateLimiter;
-use AiWooSeo\Jobs\Worker;
-use AiWooSeo\Repository\AuditRepository;
-use AiWooSeo\Repository\JobRepository;
-use AiWooSeo\Repository\ProductRepository;
-use AiWooSeo\Repository\RulesRepository;
-use AiWooSeo\Rest\ApplyController;
-use AiWooSeo\Rest\ExportController;
-use AiWooSeo\Rest\LicenseController;
-use AiWooSeo\Rest\RollbackController;
-use AiWooSeo\Rest\RulesController;
-use AiWooSeo\Rest\SeoController;
-use AiWooSeo\Rest\SettingsController;
-use AiWooSeo\Services\LicenseManager;
-use AiWooSeo\Services\MetaWriter;
-use AiWooSeo\Services\RollbackManager;
-use AiWooSeo\Services\SchemaGenerator;
-use AiWooSeo\Services\SeoOutputService;
-use AiWooSeo\Services\UsageMeter;
+use CoderEmbassy\AiSeoAutomation\Admin\AdminMenu;
+use CoderEmbassy\AiSeoAutomation\Admin\MetaBox;
+use CoderEmbassy\AiSeoAutomation\Api\ApiClientInterface;
+use CoderEmbassy\AiSeoAutomation\Api\AnthropicClient;
+use CoderEmbassy\AiSeoAutomation\Api\GeminiClient;
+use CoderEmbassy\AiSeoAutomation\Api\GroqClient;
+use CoderEmbassy\AiSeoAutomation\Api\OpenAiClient;
+use CoderEmbassy\AiSeoAutomation\Engine\GenerationEngine;
+use CoderEmbassy\AiSeoAutomation\Jobs\JobManager;
+use CoderEmbassy\AiSeoAutomation\Jobs\Queue;
+use CoderEmbassy\AiSeoAutomation\Jobs\RateLimiter;
+use CoderEmbassy\AiSeoAutomation\Jobs\Worker;
+use CoderEmbassy\AiSeoAutomation\Repository\AuditRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\JobRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\ProductRepository;
+use CoderEmbassy\AiSeoAutomation\Repository\RulesRepository;
+use CoderEmbassy\AiSeoAutomation\Rest\ApplyController;
+use CoderEmbassy\AiSeoAutomation\Rest\ExportController;
+use CoderEmbassy\AiSeoAutomation\Rest\LicenseController;
+use CoderEmbassy\AiSeoAutomation\Rest\RollbackController;
+use CoderEmbassy\AiSeoAutomation\Rest\RulesController;
+use CoderEmbassy\AiSeoAutomation\Rest\SeoController;
+use CoderEmbassy\AiSeoAutomation\Rest\SettingsController;
+use CoderEmbassy\AiSeoAutomation\Services\LicenseManager;
+use CoderEmbassy\AiSeoAutomation\Services\MetaWriter;
+use CoderEmbassy\AiSeoAutomation\Services\RollbackManager;
+use CoderEmbassy\AiSeoAutomation\Services\SchemaGenerator;
+use CoderEmbassy\AiSeoAutomation\Services\SeoOutputService;
+use CoderEmbassy\AiSeoAutomation\Services\UsageMeter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -53,13 +53,20 @@ class Plugin {
         self::$container = new Container();
         self::registerBindings( self::$container );
 
-        $tier = defined( 'AIWOO_TIER' ) ? AIWOO_TIER : 'free';
+        $tier = defined( 'CE_AI_SEO_TIER' ) ? CE_AI_SEO_TIER : 'free';
 
         // Run pending migrations on admin load when DB version is behind (e.g. after plugin update).
         add_action( 'admin_init', function () {
-            $current = (int) get_option( 'aiwoo_db_version', 0 );
+            $current = (int) get_option( 'ce_ai_seo_db_version', 0 );
             if ( $current < 5 ) {
-                ( new \AiWooSeo\Database\MigrationManager() )->run_pending();
+                ( new \CoderEmbassy\AiSeoAutomation\Database\MigrationManager() )->run_pending();
+            }
+        } );
+
+        // Declare WooCommerce compatibility (HPOS, etc.)
+        add_action( 'before_woocommerce_init', function () {
+            if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', CE_AI_SEO_PLUGIN_FILE, true );
             }
         } );
 
@@ -70,10 +77,10 @@ class Plugin {
             self::$container->make( ApplyController::class )->register_routes();
             self::$container->make( RollbackController::class )->register_routes();
             self::$container->make( SettingsController::class )->register_routes();
+            self::$container->make( RulesController::class )->register_routes();
 
             // Pro + Scale features
             if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
-                self::$container->make( RulesController::class )->register_routes();
                 self::$container->make( ExportController::class )->register_routes();
                 self::$container->make( LicenseController::class )->register_routes();
             }
@@ -93,10 +100,10 @@ class Plugin {
             self::$container->make( Queue::class )->registerHooks();
 
             // Autopilot (auto-queue SEO on product save)
-            self::$container->make( \AiWooSeo\Automation\Autopilot::class )->register_hooks();
+            self::$container->make( \CoderEmbassy\AiSeoAutomation\Automation\Autopilot::class )->register_hooks();
 
             if ( defined( 'WP_CLI' ) && WP_CLI ) {
-                \WP_CLI::add_command( 'aiwoo', \AiWooSeo\Cli\AiWooCommand::class );
+                \WP_CLI::add_command( 'ce_ai_seo', \CoderEmbassy\AiSeoAutomation\Cli\CeAiSeoCommand::class );
             }
         }
 
@@ -118,7 +125,7 @@ class Plugin {
      */
     private static function registerBindings( Container $c ): void {
 
-        $tier = defined( 'AIWOO_TIER' ) ? AIWOO_TIER : 'free';
+        $tier = defined( 'CE_AI_SEO_TIER' ) ? CE_AI_SEO_TIER : 'free';
 
         // ── Repositories ──────────────────────────────────────────────────────
         $c->singleton( ProductRepository::class, fn() => new ProductRepository() );
@@ -140,25 +147,25 @@ class Plugin {
 
         // ── AI API client (resolved from saved settings) ───────────────────
         $c->singleton( ApiClientInterface::class, function () {
-            $provider = (string) get_option( 'aiwoo_provider', 'openai' );
-            $key      = (string) get_option( "aiwoo_{$provider}_key", '' );
+            $provider = (string) get_option( 'ce_ai_seo_provider', 'openai' );
+            $key      = (string) get_option( "ce_ai_seo_{$provider}_key", '' );
 
             if ( $provider === 'anthropic' ) {
-                $model = (string) get_option( 'aiwoo_anthropic_model', 'claude-haiku-4-5-20251001' );
+                $model = (string) get_option( 'ce_ai_seo_anthropic_model', 'claude-haiku-4-5-20251001' );
                 return new AnthropicClient( $key, $model );
             }
 
             if ( $provider === 'groq' ) {
-                $model = (string) get_option( 'aiwoo_groq_model', 'llama-3.3-70b-versatile' );
+                $model = (string) get_option( 'ce_ai_seo_groq_model', 'llama-3.3-70b-versatile' );
                 return new GroqClient( $key, $model );
             }
 
             if ( $provider === 'gemini' ) {
-                $model = (string) get_option( 'aiwoo_gemini_model', 'gemini-2.0-flash' );
+                $model = (string) get_option( 'ce_ai_seo_gemini_model', 'gemini-2.0-flash' );
                 return new GeminiClient( $key, $model );
             }
 
-            $model = (string) get_option( 'aiwoo_openai_model', 'gpt-4o-mini' );
+            $model = (string) get_option( 'ce_ai_seo_openai_model', 'gpt-4o-mini' );
             return new OpenAiClient( $key, $model );
         } );
 
@@ -172,7 +179,7 @@ class Plugin {
 
         // ── Jobs ──────────────────────────────────────────────────────────────
         $c->singleton( RateLimiter::class, function () {
-            $provider = (string) get_option( 'aiwoo_provider', 'openai' );
+            $provider = (string) get_option( 'ce_ai_seo_provider', 'openai' );
             return new RateLimiter( $provider );
         } );
 
@@ -232,17 +239,17 @@ class Plugin {
             ) );
         }
 
-        if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
-            $c->singleton( RulesController::class, fn( Container $c ) => new RulesController(
-                $c->make( RulesRepository::class )
-            ) );
+        $c->singleton( RulesController::class, fn( Container $c ) => new RulesController(
+            $c->make( RulesRepository::class )
+        ) );
 
+        if ( in_array( $tier, [ 'pro', 'scale' ], true ) ) {
             $c->singleton( ExportController::class, fn( Container $c ) => new ExportController(
                 $c->make( AuditRepository::class )
             ) );
 
             // ── Automation ─────────────────────────────────────────────────────
-            $c->singleton( \AiWooSeo\Automation\Autopilot::class, fn( Container $c ) => new \AiWooSeo\Automation\Autopilot(
+            $c->singleton( \CoderEmbassy\AiSeoAutomation\Automation\Autopilot::class, fn( Container $c ) => new \CoderEmbassy\AiSeoAutomation\Automation\Autopilot(
                 $c->make( JobManager::class ),
                 $c->make( RulesRepository::class ),
                 $c->make( MetaWriter::class )
@@ -263,7 +270,7 @@ class Plugin {
     public static function woocommerce_missing_notice(): void {
         ?>
         <div class="notice notice-error">
-            <p><?php esc_html_e( 'AI WooCommerce Product SEO Automation requires WooCommerce to be installed and active.', 'ai-woo-seo' ); ?></p>
+            <p><?php esc_html_e( 'CoderEmbassy AI SEO Automation requires WooCommerce to be installed and active.', 'coderembassy-ai-seo-automation' ); ?></p>
         </div>
         <?php
     }

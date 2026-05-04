@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Core;
+namespace CoderEmbassy\AiSeoAutomation\Core;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -62,7 +62,7 @@ class Container {
             throw new \InvalidArgumentException(
                 sprintf(
                     /* translators: %s: class or interface name */
-                    esc_html__( 'No binding registered for: %s', 'ai-woo-seo' ),
+                    esc_html__( 'No binding registered for: %s', 'coderembassy-ai-seo-automation' ),
                     esc_html( $abstract )
                 )
             );

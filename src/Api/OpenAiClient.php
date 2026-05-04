@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Api;
+namespace CoderEmbassy\AiSeoAutomation\Api;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -136,16 +136,33 @@ class OpenAiClient implements ApiClientInterface {
     }
 
     private function decrypt( string $encrypted ): string {
-        $decoded = base64_decode( $encrypted, true );
+        if ( empty( $encrypted ) ) {
+            return '';
+        }
+
+        // Handle keys stored without encryption (legacy or local dev)
+        if ( ! str_starts_with( $encrypted, 'ENC:' ) ) {
+            return $encrypted;
+        }
+
+        $payload = substr( $encrypted, 4 );
+        $decoded = base64_decode( $payload, true );
         if ( $decoded === false ) {
             return '';
         }
-        $iv  = substr( defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : 'default_salt_16bytes!!', 0, 16 );
-        $key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
-        if ( empty( $key ) || strlen( $key ) < 32 ) {
+
+        $auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
+        $salt     = defined( 'SECURE_AUTH_SALT' ) ? SECURE_AUTH_SALT : '';
+
+        if ( empty( $auth_key ) ) {
             return '';
         }
-        $decrypted = openssl_decrypt( $decoded, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv );
+
+        $method         = 'AES-256-CBC';
+        $encryption_key = hash( 'sha256', $auth_key, true );
+        $iv             = substr( hash( 'sha256', $salt ), 0, 16 );
+
+        $decrypted = openssl_decrypt( $decoded, $method, $encryption_key, OPENSSL_RAW_DATA, $iv );
         return is_string( $decrypted ) ? $decrypted : '';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AiWooSeo\Database;
+namespace CoderEmbassy\AiSeoAutomation\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class MigrationManager {
 
-    private const OPTION_VERSION = 'aiwoo_db_version';
+    private const OPTION_VERSION = 'ce_ai_seo_db_version';
 
     /**
      * Run all pending migrations.
@@ -30,11 +30,24 @@ class MigrationManager {
         $this->repair_tables();
     }
 
+    /**
+     * Drop all plugin tables.
+     */
+    public function rollback_all(): void {
+        $migrations = array_reverse( $this->get_migrations() );
+
+        foreach ( $migrations as $migration ) {
+            $migration->down();
+        }
+
+        delete_option( self::OPTION_VERSION );
+    }
+
     private function repair_tables(): void {
         if ( ! function_exists( 'dbDelta' ) ) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
-        ( new \AiWooSeo\Database\Migrations\Migration005CreateRulesTable() )->up();
+        ( new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration005CreateRulesTable() )->up();
     }
 
     /**
@@ -43,14 +56,14 @@ class MigrationManager {
      * @return array<int, object> Version => migration instance.
      */
     private function get_migrations(): array {
-        $base_path = plugin_dir_path( AIWOO_PLUGIN_FILE ) . 'migrations/';
+        $base_path = plugin_dir_path( CE_AI_SEO_PLUGIN_FILE ) . 'migrations/';
 
         return [
-            1 => new \AiWooSeo\Database\Migrations\Migration001CreateJobsTable(),
-            2 => new \AiWooSeo\Database\Migrations\Migration002CreateJobItemsTable(),
-            3 => new \AiWooSeo\Database\Migrations\Migration003CreateAuditTable(),
-            4 => new \AiWooSeo\Database\Migrations\Migration004CreateSettingsTable(),
-            5 => new \AiWooSeo\Database\Migrations\Migration005CreateRulesTable(),
+            1 => new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration001CreateJobsTable(),
+            2 => new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration002CreateJobItemsTable(),
+            3 => new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration003CreateAuditTable(),
+            4 => new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration004CreateSettingsTable(),
+            5 => new \CoderEmbassy\AiSeoAutomation\Database\Migrations\Migration005CreateRulesTable(),
         ];
     }
 }
