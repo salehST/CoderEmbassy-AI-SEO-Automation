@@ -27,7 +27,7 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'list_rules' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'limit'  => [ 'type' => 'integer', 'default' => 50,  'sanitize_callback' => 'absint' ],
                     'offset' => [ 'type' => 'integer', 'default' => 0,   'sanitize_callback' => 'absint' ],
@@ -36,7 +36,7 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'create_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->rule_args( true ),
             ],
         ] );
@@ -45,19 +45,19 @@ class RulesController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->id_args(),
             ],
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'update_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => array_merge( $this->id_args(), $this->rule_args( false ) ),
             ],
             [
                 'methods'             => \WP_REST_Server::DELETABLE,
                 'callback'            => [ $this, 'delete_rule' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => $this->id_args(),
             ],
         ] );

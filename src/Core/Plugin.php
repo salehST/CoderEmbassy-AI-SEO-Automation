@@ -103,7 +103,7 @@ class Plugin {
             self::$container->make( \CoderEmbassy\AiSeoAutomation\Automation\Autopilot::class )->register_hooks();
 
             if ( defined( 'WP_CLI' ) && WP_CLI ) {
-                \WP_CLI::add_command( 'aiwoo', \CoderEmbassy\AiSeoAutomation\Cli\AiWooCommand::class );
+                \WP_CLI::add_command( 'ce_ai_seo', \CoderEmbassy\AiSeoAutomation\Cli\CeAiSeoCommand::class );
             }
         }
 
@@ -270,7 +270,7 @@ class Plugin {
     public static function woocommerce_missing_notice(): void {
         ?>
         <div class="notice notice-error">
-            <p><?php esc_html_e( 'AI WooCommerce Product SEO Automation requires WooCommerce to be installed and active.', 'coderembassy-ai-seo-automation' ); ?></p>
+            <p><?php esc_html_e( 'CoderEmbassy AI SEO Automation requires WooCommerce to be installed and active.', 'coderembassy-ai-seo-automation' ); ?></p>
         </div>
         <?php
     }

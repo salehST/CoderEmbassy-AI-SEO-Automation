@@ -29,7 +29,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'create_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'name'          => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
                     'product_ids'   => [ 'type' => 'array',   'default' => [] ],  // explicit list (no categories)
@@ -46,7 +46,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -54,7 +54,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::DELETABLE,
                 'callback'            => [ $this, 'cancel_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -65,7 +65,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'process_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -76,7 +76,7 @@ class SeoController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'estimate_cost' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'product_count' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'provider'      => [ 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => 'openai' ],
@@ -89,7 +89,7 @@ class SeoController {
             [
                 'methods'             => [ \WP_REST_Server::READABLE, \WP_REST_Server::EDITABLE ],
                 'callback'            => [ $this, 'preview_product' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'product_id'      => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'focus_keyphrase' => [

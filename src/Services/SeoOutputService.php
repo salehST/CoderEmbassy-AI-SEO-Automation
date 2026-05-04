@@ -71,7 +71,7 @@ class SeoOutputService {
             return;
         }
         ?>
-        <!-- AI WooCommerce SEO -->
+        <!-- CoderEmbassy AI SEO -->
         <?php if ( $desc ) : ?>
         <meta name="description" content="<?php echo esc_attr( $desc ); ?>">
         <?php endif; ?>

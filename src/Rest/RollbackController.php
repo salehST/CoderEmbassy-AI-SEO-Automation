@@ -18,7 +18,7 @@ class RollbackController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'rollback_job' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
                 'args'                => [
                     'job_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                 ],
@@ -29,7 +29,7 @@ class RollbackController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'rollback_single' ],
-                'permission_callback' => fn() => current_user_can( 'edit_products' ),
+                'permission_callback' => function() { return current_user_can( 'edit_products' ); },
                 'args'                => [
                     'job_id'     => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],
                     'product_id' => [ 'type' => 'integer', 'minimum' => 1, 'required' => true ],

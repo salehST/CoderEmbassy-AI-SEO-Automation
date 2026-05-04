@@ -29,12 +29,12 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_settings' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
             ],
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'save_settings' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
                 'args'                => [
                     'provider'             => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
                     'api_key'              => [ 'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ],
@@ -52,7 +52,7 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::CREATABLE,
                 'callback'            => [ $this, 'test_connection' ],
-                'permission_callback' => fn() => current_user_can( 'manage_options' ),
+                'permission_callback' => function() { return current_user_can( 'manage_options' ); },
             ],
         ] );
 
@@ -60,7 +60,7 @@ class SettingsController {
             [
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => [ $this, 'get_usage' ],
-                'permission_callback' => fn() => current_user_can( 'manage_woocommerce' ),
+                'permission_callback' => function() { return current_user_can( 'manage_woocommerce' ); },
             ],
         ] );
     }

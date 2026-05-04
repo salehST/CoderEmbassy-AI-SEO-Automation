@@ -24,7 +24,7 @@ class MetaBox {
      * @return string
      */
     public function add_module_type( string $tag, string $handle ): string {
-        if ( $handle === 'aiwoo-metabox' ) {
+        if ( $handle === 'ce-ai-seo-metabox' ) {
             return str_replace( ' src=', ' type="module" src=', $tag );
         }
         return $tag;
@@ -32,7 +32,7 @@ class MetaBox {
 
     public function add_meta_box(): void {
         add_meta_box(
-            'aiwoo-seo-metabox',
+            'ce-ai-seo-metabox',
             __( 'AI SEO', 'coderembassy-ai-seo-automation' ),
             [ $this, 'render' ],
             'product',
@@ -42,36 +42,15 @@ class MetaBox {
     }
 
     /**
-     * Render the metabox shell. React mounts into #aiwoo-metabox-root.
+     * Render the metabox shell. React mounts into #ce-ai-seo-metabox-root.
      *
      * @param \WP_Post $post Current product post.
      */
     public function render( \WP_Post $post ): void {
-        $product = wc_get_product( $post->ID );
-        $current = [];
-
-        if ( $product ) {
-            $current = [
-                'title'          => get_post_meta( $post->ID, '_ce_ai_seo_seo_title', true ) ?: '',
-                'meta'           => get_post_meta( $post->ID, '_ce_ai_seo_seo_meta', true ) ?: '',
-                'alt'            => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_alt', true ), true ) ?: [],
-                'schema'         => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_schema', true ), true ) ?: [],
-                'focus_keyphrase'=> (string) get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ),
-            ];
-        }
         ?>
-        <div id="aiwoo-metabox-root"
+        <div id="ce-ai-seo-metabox-root"
              data-product-id="<?php echo esc_attr( (string) $post->ID ); ?>">
         </div>
-        <script>
-            window.AiWooProduct = {
-                productId: <?php echo (int) $post->ID; ?>,
-                lastJobId: <?php echo (int) get_post_meta( $post->ID, '_ce_ai_seo_last_job_id', true ); ?>,
-                current: <?php echo wp_json_encode( $current ); ?>,
-                nonce: <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>,
-                focusKeyphrase: <?php echo wp_json_encode( get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ) ?: '' ); ?>,
-            };
-        </script>
         <?php
     }
 
@@ -99,7 +78,7 @@ class MetaBox {
 
         if ( file_exists( $dist_dir . 'main.css' ) ) {
             wp_enqueue_style(
-                'aiwoo-metabox',
+                'ce-ai-seo-metabox',
                 $dist_url . 'main.css',
                 [],
                 CE_AI_SEO_VERSION
@@ -107,7 +86,7 @@ class MetaBox {
         }
 
         wp_enqueue_script(
-            'aiwoo-metabox',
+            'ce-ai-seo-metabox',
             $dist_url . 'metabox.js',
             [],
             CE_AI_SEO_VERSION,
@@ -115,9 +94,34 @@ class MetaBox {
         );
 
         // Shared REST API config
-        wp_localize_script( 'aiwoo-metabox', 'AiWoo', [
+        wp_localize_script( 'ce-ai-seo-metabox', 'CeAiSeo', [
             'root'  => esc_url_raw( rest_url() ),
             'nonce' => wp_create_nonce( 'wp_rest' ),
         ] );
+
+        global $post;
+        if ( $post ) {
+            $current = [
+                'title'          => get_post_meta( $post->ID, '_ce_ai_seo_seo_title', true ) ?: '',
+                'meta'           => get_post_meta( $post->ID, '_ce_ai_seo_seo_meta', true ) ?: '',
+                'alt'            => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_alt', true ), true ) ?: [],
+                'schema'         => json_decode( (string) get_post_meta( $post->ID, '_ce_ai_seo_seo_schema', true ), true ) ?: [],
+                'focus_keyphrase'=> (string) get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ),
+            ];
+
+            $product_data = [
+                'productId'      => (int) $post->ID,
+                'lastJobId'      => (int) get_post_meta( $post->ID, '_ce_ai_seo_last_job_id', true ),
+                'current'        => $current,
+                'nonce'          => wp_create_nonce( 'wp_rest' ),
+                'focusKeyphrase' => get_post_meta( $post->ID, '_ce_ai_seo_focus_keyphrase', true ) ?: '',
+            ];
+
+            wp_add_inline_script(
+                'ce-ai-seo-metabox',
+                'window.CeAiSeoProduct = ' . wp_json_encode( $product_data ) . ';',
+                'before'
+            );
+        }
     }
 }
